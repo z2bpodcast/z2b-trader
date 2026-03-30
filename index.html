@@ -420,6 +420,23 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 }
 .cancel-scan-btn:hover{background:rgba(255,69,105,0.12);}
 
+
+/* ── BELL INSTRUCTIONS ── */
+.bell-instructions{background:var(--panel);border:1px solid var(--border);
+  border-top:2px solid #ffd700;padding:14px;margin-bottom:12px;}
+.bi-title{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:#ffd700;
+  letter-spacing:0.15em;margin-bottom:12px;font-weight:700;}
+.bi-steps{display:flex;flex-direction:column;gap:6px;}
+.bi-step{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;
+  background:rgba(255,255,255,0.03);border:1px solid var(--border);}
+.bi-step-num{font-family:'Orbitron',monospace;font-size:0.7rem;font-weight:900;
+  color:#ffd700;min-width:24px;margin-top:1px;}
+.bi-step-text{font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:#f0e6ff;line-height:1.5;}
+.bi-step-text strong{color:#ffd700;}
+.bi-step-text .red{color:#ff4569;}
+.bi-step-text .green{color:#00e676;}
+.bi-step.highlight{border-color:rgba(255,215,0,0.3);background:rgba(255,215,0,0.04);}
+
 </style>
 </head>
 <body>
@@ -856,6 +873,93 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
   </div>
 
 </div>
+
+
+  <!-- WHEN THE BELL RINGS — QUICK ACTION GUIDE -->
+  <div class="bell-instructions">
+    <div class="bi-title">🔔 WHEN THE BELL RINGS — YOUR EXACT ACTION STEPS</div>
+    <div class="bi-steps">
+
+      <div class="bi-step highlight">
+        <div class="bi-step-num">1</div>
+        <div class="bi-step-text">
+          <strong>STOP what you are doing</strong> — open the app immediately.
+          The signal is time-sensitive. Price moves fast after confluence forms.
+        </div>
+      </div>
+
+      <div class="bi-step">
+        <div class="bi-step-num">2</div>
+        <div class="bi-step-text">
+          <strong>Read the signal card</strong> — check the pair, direction (BUY/SELL),
+          entry price, stop loss and take profit. All 6 gates must show ✔.
+        </div>
+      </div>
+
+      <div class="bi-step">
+        <div class="bi-step-num">3</div>
+        <div class="bi-step-text">
+          <strong>Complete the pre-trade checklist</strong> — all 5 items must be checked
+          before the TAKE TRADE button unlocks. <span class="red">No shortcuts.</span>
+        </div>
+      </div>
+
+      <div class="bi-step highlight">
+        <div class="bi-step-num">4</div>
+        <div class="bi-step-text">
+          <strong>Open Exness on your phone</strong> — go to MT4 or MT5.
+          Select the same pair shown in the signal (e.g. EUR/USD).
+        </div>
+      </div>
+
+      <div class="bi-step">
+        <div class="bi-step-num">5</div>
+        <div class="bi-step-text">
+          <strong>Set your trade exactly:</strong><br>
+          • Lot size: <strong>0.01</strong> (micro lot = $1 risk)<br>
+          • Stop Loss: copy the SL price from the signal card<br>
+          • Take Profit: copy the TP price from the signal card<br>
+          • Direction: BUY or SELL as shown
+        </div>
+      </div>
+
+      <div class="bi-step">
+        <div class="bi-step-num">6</div>
+        <div class="bi-step-text">
+          <strong>Place the trade on Exness</strong> — confirm and submit.
+          Come back to Z2B app and tap <strong>"I PLACED THE TRADE"</strong> to log it.
+        </div>
+      </div>
+
+      <div class="bi-step highlight">
+        <div class="bi-step-num">7</div>
+        <div class="bi-step-text">
+          <strong class="green">WALK AWAY.</strong> Do not watch the candles.
+          The trade is placed. SL and TP are set. Your job is done.
+          Let the RR play out. Return only when Exness notifies you of the result.
+        </div>
+      </div>
+
+      <div class="bi-step">
+        <div class="bi-step-num">8</div>
+        <div class="bi-step-text">
+          <strong>When trade closes</strong> — come back to the app.
+          Tap <strong>WIN</strong> or <strong>LOSS</strong> on the trade in the tracker.
+          Add one sentence of notes. <span class="green">That is your proof building.</span>
+        </div>
+      </div>
+
+      <div class="bi-step" style="border-color:rgba(255,69,105,0.3);background:rgba(255,69,105,0.04);">
+        <div class="bi-step-num" style="color:#ff4569;">✗</div>
+        <div class="bi-step-text">
+          <strong class="red">NEVER:</strong> Move your stop loss · Close early out of fear ·
+          Add to a losing position · Take a second trade on the same pair while one is open ·
+          Trade after 3 consecutive losses in a day.
+        </div>
+      </div>
+
+    </div>
+  </div>
 
 <div class="disclaimer">
   ⚠ FOR PERSONAL USE · EDUCATIONAL & RESEARCH PURPOSES ONLY · NOT FINANCIAL ADVICE<br>
