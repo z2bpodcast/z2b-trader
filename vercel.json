@@ -1,13 +1,20 @@
 {
   "version": 2,
   "name": "z2b-trading-command-centre",
-  "builds": [
+  "crons": [
     {
-      "src": "**/*",
-      "use": "@vercel/static"
+      "path": "/api/scan-cron",
+      "schedule": "*/15 8-21 * * 1-5"
     }
   ],
   "routes": [
+    {
+      "src": "/api/(.*)",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
+      }
+    },
     {
       "src": "/sw.js",
       "headers": {
@@ -34,10 +41,7 @@
     {
       "src": "/(.*)",
       "headers": {
-        "X-Content-Type-Options": "nosniff",
-        "X-Frame-Options": "DENY",
-        "X-XSS-Protection": "1; mode=block",
-        "Referrer-Policy": "strict-origin-when-cross-origin"
+        "X-Content-Type-Options": "nosniff"
       },
       "dest": "/index.html"
     }
