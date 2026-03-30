@@ -1,20 +1,7 @@
 {
   "version": 2,
   "name": "z2b-trading-command-centre",
-  "crons": [
-    {
-      "path": "/api/scan-cron",
-      "schedule": "*/15 8-21 * * 1-5"
-    }
-  ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
-      }
-    },
     {
       "src": "/sw.js",
       "headers": {
@@ -40,9 +27,6 @@
     },
     {
       "src": "/(.*)",
-      "headers": {
-        "X-Content-Type-Options": "nosniff"
-      },
       "dest": "/index.html"
     }
   ]
