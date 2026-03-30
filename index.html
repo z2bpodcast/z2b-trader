@@ -238,6 +238,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .opp-card.buy{border-color:rgba(0,230,118,0.5);box-shadow:0 0 14px rgba(0,230,118,0.12);}
 .opp-card.sell{border-color:rgba(255,69,105,0.5);box-shadow:0 0 14px rgba(255,69,105,0.12);}
+.opp-card.watch{border-color:rgba(255,215,0,0.5);box-shadow:0 0 14px rgba(255,215,0,0.1);}
+.opp-card.watch::before{background:linear-gradient(90deg,transparent,#ffd700,transparent);}
 .opp-card.no-signal{border-color:var(--border);opacity:0.7;}
 .opp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
 .opp-card.buy::before{background:linear-gradient(90deg,transparent,#ffd700,transparent);}
@@ -258,6 +260,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 .signal-pill.buy{background:rgba(0,230,118,0.12);color:#00e676;border:1px solid rgba(0,230,118,0.5);font-weight:700;}
 .signal-pill.sell{background:rgba(255,69,105,0.12);color:#ff4569;border:1px solid rgba(255,69,105,0.5);font-weight:700;}
 .signal-pill.no-signal{background:rgba(179,157,219,0.1);color:#b39ddb;border:1px solid #5b2d8e;}
+.signal-pill.watch-buy{background:rgba(255,215,0,0.1);color:#ffd700;border:1px solid rgba(255,215,0,0.5);font-weight:700;}
+.signal-pill.watch-sell{background:rgba(255,215,0,0.1);color:#ffd700;border:1px solid rgba(255,215,0,0.5);font-weight:700;}
 .rr-chip{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:0.52rem;padding:2px 5px;border:1px solid #ffd700;color:#ffd700;margin-left:4px;vertical-align:middle;background:rgba(255,215,0,0.08);}
 .gates-row{display:flex;align-items:center;gap:6px;padding:0 12px;margin-bottom:7px;}
 .gp-track{flex:1;height:5px;background:var(--border);overflow:hidden;}
@@ -562,8 +566,9 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
   <div class="controls">
     <span class="ctrl-label">TIMEFRAME:</span>
     <button class="tf-btn active" data-tf="M15">M15</button>
+    <button class="tf-btn" data-tf="M5">M5</button>
     <button class="tf-btn" data-tf="H1">H1</button>
-    <button class="tf-btn" data-tf="BOTH">M15 + H1</button>
+    <button class="tf-btn" data-tf="ALL">M5+M15+H1</button>
     <button class="scan-btn" id="scanBtn" onclick="runScan()">⟳ RUN 6-GATE SCAN</button>
   </div>
 
@@ -632,7 +637,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
         <span class="hi-green">Available leverage options: 1:2 · 1:20 · 1:50 · 1:100 ✅ · 1:200 · 1:2000 · Unlimited ✗</span><br>
         <span class="hi-red">For the 60-day proof period — 1:100 is the ONLY acceptable setting. We are building a trading business, not gambling.</span>
       </div></div>
-      <div class="rule-item"><span class="ri-num">PAIRS</span><div class="ri-text">EUR/USD · GBP/USD · USD/JPY · AUD/USD — Major pairs only. Tightest spreads. Strongest trends. Most predictable during London and New York sessions.</div></div>
+      <div class="rule-item"><span class="ri-num">PAIRS</span><div class="ri-text">EUR/USD · GBP/USD · USD/JPY · AUD/USD · USD/CAD · USD/CHF (Majors) · EUR/JPY · GBP/JPY (Crosses) · XAU/USD (Gold) · USOIL (WTI Crude) — 10 instruments scanned across M5, M15 and H1 timeframes.</div></div>
       <div class="rule-item"><span class="ri-num">TF</span><div class="ri-text"><span class="hi-green">M15</span> (15-minute) and <span class="hi-green">H1</span> (1-hour) timeframes only. M15 for quick setups, H1 for stronger confluences and bigger rewards.</div></div>
     </div>
   </div>
@@ -648,7 +653,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
       <div class="rule-item"><span class="ri-num">G1</span><div class="ri-text"><strong>EMA200 TREND DIRECTION</strong> — Price above EMA200 = BUY only. Price below EMA200 = SELL only. <span class="hi-green">Never fight the 200 EMA.</span> This is the master filter.</div></div>
       <div class="rule-item"><span class="ri-num">G2</span><div class="ri-text"><strong>EMA STACK ALIGNMENT</strong> — EMA9 > EMA21 > EMA50 for BUY. All three must be stacked in signal direction. Triple confirmation of momentum building.</div></div>
       <div class="rule-item"><span class="ri-num">G3</span><div class="ri-text"><strong>MACD MOMENTUM</strong> — MACD line must cross above signal line AND histogram must be rising. Backed by <span class="hi-green">73% win rate</span> in QuantifiedStrategies backtest of 235 trades.</div></div>
-      <div class="rule-item"><span class="ri-num">G4</span><div class="ri-text"><strong>RSI MOMENTUM ZONE</strong> — BUY: RSI 45–65 (building momentum, not overbought). SELL: RSI 35–55. <span class="hi-yellow">Never buy into overbought. Never sell into oversold.</span></div></div>
+      <div class="rule-item"><span class="ri-num">G4</span><div class="ri-text"><strong>RSI MOMENTUM ZONE</strong> — BUY: RSI 45–70 (captures strong trending moves). SELL: RSI 30–55. <span class="hi-yellow">Relaxed to allow capturing strong trends. Still blocks extreme overbought above 70 and oversold below 30.</span></div></div>
       <div class="rule-item"><span class="ri-num">G5</span><div class="ri-text"><strong>ADX TREND STRENGTH ≥ 20</strong> — ADX below 20 = ranging market = NO TRADE. Only trend in trending conditions. ADX ≥ 25 = even stronger confidence.</div></div>
       <div class="rule-item"><span class="ri-num">G6</span><div class="ri-text"><strong>SESSION FILTER</strong> — <span class="hi-green">London (10AM–7PM SAST)</span> or <span class="hi-green">New York (3PM–12AM SAST)</span> only. Off-session signals are automatically blocked by the app.</div></div>
     </div>
@@ -964,7 +969,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
       <div class="bi-step" style="border-color:rgba(255,69,105,0.3);background:rgba(255,69,105,0.04);">
         <div class="bi-step-num" style="color:#ff4569;">✗</div>
         <div class="bi-step-text">
-          <strong class="red">NEVER:</strong> Move your stop loss · Close early out of fear ·
+          <strong style="color:#ffd700;">🔍 WATCH SIGNAL (5/6 gates)</strong> — One gate is missing. Note which gate is failing on the card. Monitor that pair — if the missing gate aligns in the next candle, a full signal may fire. Do NOT trade a watch signal. Wait for all 6. <br><br><strong class="red">NEVER:</strong> Move your stop loss · Close early out of fear ·
           Add to a losing position · Take a second trade on the same pair while one is open ·
           Trade after 3 consecutive losses in a day.
         </div>
@@ -987,16 +992,26 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 // Z2B COMMAND CENTRE — COMPLETE SYSTEM
 // ═══════════════════════════════════════════════════════════
 
-const EXNESS = {spread:{"EUR/USD":0.2,"GBP/USD":0.3,"USD/JPY":0.2,"AUD/USD":0.3}};
+const EXNESS = {spread:{"EUR/USD":0.2,"GBP/USD":0.3,"USD/JPY":0.2,"AUD/USD":0.3,"USD/CAD":0.3,"USD/CHF":0.3,"EUR/JPY":0.5,"GBP/JPY":0.7,"XAU/USD":0.25,"USOIL":0.03}};
 const PAIRS = {
-  "EUR/USD":{base:1.0854,pipSize:0.0001,micro_pv:0.10,dec:5},
-  "GBP/USD":{base:1.2634,pipSize:0.0001,micro_pv:0.10,dec:5},
-  "USD/JPY":{base:151.42,pipSize:0.01,micro_pv:0.066,dec:3},
-  "AUD/USD":{base:0.6521,pipSize:0.0001,micro_pv:0.10,dec:5}
+  // Major Pairs
+  "EUR/USD":{base:1.0854,pipSize:0.0001,micro_pv:0.10,dec:5,cat:'MAJOR'},
+  "GBP/USD":{base:1.2634,pipSize:0.0001,micro_pv:0.10,dec:5,cat:'MAJOR'},
+  "USD/JPY":{base:151.42,pipSize:0.01,  micro_pv:0.066,dec:3,cat:'MAJOR'},
+  "AUD/USD":{base:0.6521,pipSize:0.0001,micro_pv:0.10,dec:5,cat:'MAJOR'},
+  "USD/CAD":{base:1.3612,pipSize:0.0001,micro_pv:0.073,dec:5,cat:'MAJOR'},
+  "USD/CHF":{base:0.9042,pipSize:0.0001,micro_pv:0.11,dec:5,cat:'MAJOR'},
+  // Cross Pairs
+  "EUR/JPY":{base:163.45,pipSize:0.01,  micro_pv:0.066,dec:3,cat:'CROSS'},
+  "GBP/JPY":{base:191.22,pipSize:0.01,  micro_pv:0.066,dec:3,cat:'CROSS'},
+  // Commodities
+  "XAU/USD":{base:2340.0,pipSize:0.01,  micro_pv:0.01,dec:2,cat:'GOLD'},
+  "USOIL":  {base:82.50, pipSize:0.01,  micro_pv:0.01,dec:2,cat:'OIL'}
 };
-const SCAN_PAIRS=["EUR/USD","GBP/USD","USD/JPY","AUD/USD"];
-const TD_INT={"M15":"15min","H1":"1h"};
-const RR={"M15":2,"H1":3};
+const SCAN_PAIRS=["EUR/USD","GBP/USD","USD/JPY","AUD/USD","USD/CAD","USD/CHF","EUR/JPY","GBP/JPY","XAU/USD","USOIL"];
+window.PAIRS_CAT={"EUR/USD":"MAJOR","GBP/USD":"MAJOR","USD/JPY":"MAJOR","AUD/USD":"MAJOR","USD/CAD":"MAJOR","USD/CHF":"MAJOR","EUR/JPY":"CROSS","GBP/JPY":"CROSS","XAU/USD":"GOLD","USOIL":"OIL"};
+const TD_INT={"M5":"5min","M15":"15min","H1":"1h"};
+const RR={"M5":1.5,"M15":2,"H1":3};
 const RISK=1.00;
 
 let apiKey=localStorage.getItem('z2b_cc_key')||'';
@@ -1147,7 +1162,8 @@ function fireAlert(result){
   // Signal text
   const sigEl=document.getElementById('bellSignalText');
   sigEl.textContent=result.signal.toUpperCase();
-  sigEl.className=`bell-signal ${result.signal}`;
+  const bellClass=result.signal.startsWith('watch')?'watch':result.signal;
+  sigEl.className=`bell-signal ${bellClass}`;
 
   // Trade info
   document.getElementById('bellTradeInfo').innerHTML=`
@@ -1264,14 +1280,17 @@ function applyGates(candles,pair){
   const ATR14=calcATR(highs,lows,closes);
   const sess=isActiveSession();
 
-  const bGates=[price>EMA200,EMA9>EMA21&&EMA21>EMA50,MACD.macdLine>MACD.sig&&MACD.rising,RSI14>=45&&RSI14<=65,ADX14>=20,sess];
-  const sGates=[price<EMA200,EMA9<EMA21&&EMA21<EMA50,MACD.macdLine<MACD.sig&&!MACD.rising,RSI14>=35&&RSI14<=55,ADX14>=20,sess];
+  // RSI zones relaxed: BUY 45-70 (captures strong trends), SELL 30-55
+  const bGates=[price>EMA200,EMA9>EMA21&&EMA21>EMA50,MACD.macdLine>MACD.sig&&MACD.rising,RSI14>=45&&RSI14<=70,ADX14>=20,sess];
+  const sGates=[price<EMA200,EMA9<EMA21&&EMA21<EMA50,MACD.macdLine<MACD.sig&&!MACD.rising,RSI14>=30&&RSI14<=55,ADX14>=20,sess];
   const bPass=bGates.filter(Boolean).length;
   const sPass=sGates.filter(Boolean).length;
 
   let signal='no-signal',gateResults=bGates,gatesPassed=Math.max(bPass,sPass);
   if(bPass===6){signal='buy';gateResults=bGates;gatesPassed=6;}
   else if(sPass===6){signal='sell';gateResults=sGates;gatesPassed=6;}
+  else if(bPass===5){signal='watch-buy';gateResults=bGates;gatesPassed=5;}
+  else if(sPass===5){signal='watch-sell';gateResults=sGates;gatesPassed=5;}
   else{gateResults=bPass>=sPass?bGates:sGates;}
 
   const confidence=signal!=='no-signal'?Math.min(92,Math.max(58,65+(ADX14>=25?10:0))):0;
@@ -1350,7 +1369,8 @@ function renderCards(results){
   grid.className='opps-grid';
   results.forEach((r,i)=>{
     const card=document.createElement('div');
-    card.className=`opp-card ${r.signal}`;
+    const cardSignalClass = r.signal.startsWith('watch') ? 'watch' : r.signal;
+    card.className=`opp-card ${cardSignalClass}`;
     card.style.animationDelay=`${i*0.07}s`;
     const sigIdx=results.filter(x=>x.signal!=='no-signal').indexOf(r);
     const rankClass=sigIdx===0?'rank-1':sigIdx===1?'rank-2':'rank-o';
@@ -1361,12 +1381,15 @@ function renderCards(results){
     const priceChange=r.price-PAIRS[r.pair].base;
     const dec=PAIRS[r.pair].dec;
     const chipHTML=r.chips.map(c=>`<div class="g-chip ${c.p?'p':'f'}">${c.p?'✔':'✗'} ${c.n}</div>`).join('');
+    const pairCat = (window.PAIRS_CAT||{})[r.pair]||'';
+    const catColor = pairCat==='GOLD'?'#ffd700':pairCat==='OIL'?'#ff8c00':pairCat==='CROSS'?'#e040fb':'#00c8f0';
     card.innerHTML=`
       <div class="rank-badge ${rankClass}">${rankLabel}</div>
       <div class="opp-header">
         <div class="opp-pair-row">
           <div class="opp-pair">${r.pair}</div>
           <div class="opp-tf">${r.tf}</div>
+          ${pairCat?`<span style="font-family:'Share Tech Mono',monospace;font-size:0.44rem;padding:1px 5px;border:1px solid ${catColor};color:${catColor};">${pairCat}</span>`:''}
           <span class="opp-src ${r.isLive?'live':'sim'}">${r.isLive?'LIVE':'SIM'}</span>
         </div>
         <div class="opp-price">${r.price.toFixed(dec)} <span style="color:${priceChange>=0?'var(--green)':'var(--red)'}">${priceChange>=0?'+':''}${priceChange.toFixed(dec)}</span></div>
@@ -1433,7 +1456,7 @@ async function runScan(){
   const fill=document.getElementById('scanFill');
   btn.disabled=true;overlay.classList.add('active');
   scanResults=[];
-  const tfs=currentTF==='BOTH'?['M15','H1']:[currentTF];
+  const tfs=currentTF==='ALL'?['M5','M15','H1']:[currentTF];
   const total=SCAN_PAIRS.length*tfs.length;
   let done=0,anyLive=false,anyErr=false;
 
@@ -1460,11 +1483,14 @@ async function runScan(){
       const finalResult={...result,pair,tf,levels,isLive};
       scanResults.push(finalResult);
 
-      // Fire bell if signal
-      if(result.signal!=='no-signal'){
+      // Fire bell if full signal, watch alert if 5/6
+      if(result.signal==='buy'||result.signal==='sell'){
         sigsToday++;
         document.getElementById('statSigs').textContent=sigsToday;
         setTimeout(()=>fireAlert(finalResult),800);
+      } else if(result.signal==='watch-buy'||result.signal==='watch-sell'){
+        sigsToday++;
+        document.getElementById('statSigs').textContent=sigsToday;
       }
       done++;fill.style.width=(done/total*100)+'%';
     }
