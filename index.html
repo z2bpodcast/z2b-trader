@@ -213,15 +213,10 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 
 .session-bar{display:flex;gap:5px;margin-bottom:12px;align-items:center;flex-wrap:wrap;}
 .sess-label{font-family:'Share Tech Mono',monospace;font-size:0.54rem;color:var(--dim);}
-.sess-pill{font-family:'Share Tech Mono',monospace;font-size:0.54rem;padding:5px 11px;border:1px solid;cursor:pointer;transition:all 0.2s;user-select:none;}
-.sess-pill.on{border-color:#ffd700;color:#ffd700;background:rgba(255,215,0,0.1);font-weight:700;}
+.sess-pill{font-family:'Share Tech Mono',monospace;font-size:0.54rem;padding:5px 11px;border:1px solid;transition:all 0.2s;}
+.sess-pill.on{border-color:#ffd700;color:#ffd700;background:rgba(255,215,0,0.12);font-weight:700;}
 .sess-pill.off{border-color:#5b2d8e;color:#b39ddb;background:rgba(255,255,255,0.03);}
-.sess-pill.selected{border-color:#ffd700;color:#1a0533;background:#ffd700;font-weight:700;}
-.sess-pill.override{border-color:#00e676;color:#00e676;background:rgba(0,230,118,0.1);font-weight:700;}
-.sess-override-note{font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#00e676;margin-left:6px;}
-.sess-all-btn{font-family:'Share Tech Mono',monospace;font-size:0.54rem;padding:5px 11px;border:1px solid #ffd700;color:#ffd700;background:transparent;cursor:pointer;transition:all 0.2s;}
-.sess-all-btn.active{background:#ffd700;color:#1a0533;font-weight:700;}
-.sess-all-btn:hover{background:rgba(255,215,0,0.15);}
+.sess-gate-note{font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#b39ddb;margin-left:4px;letter-spacing:0.06em;}
 .data-badge{display:inline-flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:0.54rem;padding:3px 9px;border:1px solid;margin-bottom:12px;}
 .data-badge.live{border-color:#00e676;color:#00e676;background:rgba(0,230,118,0.08);}
 .data-badge.sim{border-color:#ffd700;color:#ffd700;background:rgba(255,215,0,0.07);}
@@ -376,6 +371,43 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
   text-align:center;font-weight:700;cursor:pointer;}
 .update-banner.show{display:block;}
 
+
+/* ── DEMO / LIVE TOGGLE ── */
+.mode-toggle-wrap{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:14px;border:2px solid #ffd700;overflow:hidden;max-width:320px;}
+.mode-toggle-btn{flex:1;font-family:'Orbitron',monospace;font-size:0.72rem;font-weight:700;
+  padding:11px 10px;background:transparent;border:none;cursor:pointer;
+  letter-spacing:0.12em;transition:all 0.25s;text-align:center;}
+.mode-toggle-btn.demo-btn{color:#b39ddb;}
+.mode-toggle-btn.demo-btn.active{background:#3d1470;color:#ffd700;}
+.mode-toggle-btn.live-btn{color:#b39ddb;}
+.mode-toggle-btn.live-btn.active{background:#ffd700;color:#1a0533;}
+.mode-divider{width:2px;background:#ffd700;flex-shrink:0;}
+
+.demo-banner{display:none;background:rgba(61,20,112,0.6);border:1px solid rgba(255,215,0,0.3);
+  border-left:3px solid #ffd700;padding:10px 14px;margin-bottom:12px;}
+.demo-banner.show{display:block;}
+.demo-banner-title{font-family:'Orbitron',monospace;font-size:0.68rem;color:#ffd700;
+  font-weight:700;letter-spacing:0.1em;margin-bottom:4px;}
+.demo-banner-text{font-family:'Rajdhani',sans-serif;font-size:0.82rem;color:#f0e6ff;line-height:1.5;}
+.demo-banner-text strong{color:#ffd700;}
+
+.live-banner{display:none;background:rgba(0,230,118,0.06);border:1px solid rgba(0,230,118,0.3);
+  border-left:3px solid #00e676;padding:10px 14px;margin-bottom:12px;}
+.live-banner.show{display:block;}
+.live-banner-title{font-family:'Orbitron',monospace;font-size:0.68rem;color:#00e676;
+  font-weight:700;letter-spacing:0.1em;margin-bottom:4px;}
+.live-banner-text{font-family:'Rajdhani',sans-serif;font-size:0.82rem;color:#f0e6ff;line-height:1.5;}
+
+.demo-tag{font-family:'Share Tech Mono',monospace;font-size:0.5rem;padding:2px 6px;
+  background:rgba(255,215,0,0.15);color:#ffd700;border:1px solid rgba(255,215,0,0.3);
+  letter-spacing:0.08em;margin-left:5px;vertical-align:middle;}
+.live-tag{font-family:'Share Tech Mono',monospace;font-size:0.5rem;padding:2px 6px;
+  background:rgba(0,230,118,0.12);color:#00e676;border:1px solid rgba(0,230,118,0.3);
+  letter-spacing:0.08em;margin-left:5px;vertical-align:middle;}
+
+.demo-account-note{font-family:'Share Tech Mono',monospace;font-size:0.5rem;
+  color:#ffd700;text-align:center;margin-top:3px;letter-spacing:0.08em;}
+
 </style>
 </head>
 <body>
@@ -454,6 +486,40 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 <!-- ════════════════════════════════════════════ -->
 <div class="tab-content active" id="tab-scanner">
 
+
+  <!-- DEMO / LIVE TOGGLE -->
+  <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:14px;">
+    <div class="mode-toggle-wrap">
+      <button class="mode-toggle-btn demo-btn active" id="demoBtnToggle" onclick="setTradingMode('demo')">
+        🎓 DEMO MODE
+      </button>
+      <div class="mode-divider"></div>
+      <button class="mode-toggle-btn live-btn" id="liveBtnToggle" onclick="setTradingMode('live')">
+        💰 LIVE MODE
+      </button>
+    </div>
+    <div class="demo-account-note" id="modeAccountNote">Practising with virtual $10 · No real money at risk</div>
+  </div>
+
+  <!-- DEMO BANNER -->
+  <div class="demo-banner show" id="demoBanner">
+    <div class="demo-banner-title">🎓 DEMO MODE ACTIVE — VIRTUAL $10 ACCOUNT</div>
+    <div class="demo-banner-text">
+      You are trading with <strong>virtual money only</strong>. All signals, gates, checklist, bell and journal work exactly as they will in live trading.<br>
+      <strong>Your goal:</strong> Complete 30 days of demo trading, hit 60% win rate, build discipline habits.
+      When your <strong>real $10 arrives at month end</strong> — switch to Live Mode. You will already be ready.
+    </div>
+  </div>
+
+  <!-- LIVE BANNER -->
+  <div class="live-banner" id="liveBanner">
+    <div class="live-banner-title">💰 LIVE MODE — REAL MONEY ON EXNESS</div>
+    <div class="live-banner-text">
+      You are trading with <strong>real money</strong>. Every signal, every checklist item, every gate matters.
+      $1 risk per trade · 0.01 lot · Exness Standard Account. Your discipline is your protection.
+    </div>
+  </div>
+
   <div class="api-bar">
     <label>TWELVE DATA KEY:</label>
     <input class="api-input" id="apiKeyInput" type="password" placeholder="twelvedata.com free API key...">
@@ -473,13 +539,10 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
   </div>
 
   <div class="session-bar">
-    <span class="sess-label">SESSIONS:</span>
-    <button class="sess-all-btn active" id="sessAllBtn" onclick="setSessOverride('all')">ALL</button>
-    <div class="sess-pill" id="sess-london" onclick="setSessOverride('london')">LONDON</div>
-    <div class="sess-pill" id="sess-newyork" onclick="setSessOverride('newyork')">NEW YORK</div>
-    <div class="sess-pill" id="sess-tokyo" onclick="setSessOverride('tokyo')">TOKYO</div>
-    <div class="sess-pill" id="sess-sydney" onclick="setSessOverride('sydney')">SYDNEY</div>
-    <span class="sess-override-note" id="sessOverrideNote" style="display:none;">⚡ MANUAL OVERRIDE — Gate 6 bypassed</span>
+    <span class="sess-label">ACTIVE SESSIONS:</span>
+    <div class="sess-pill" id="sess-london">🇬🇧 LONDON</div>
+    <div class="sess-pill" id="sess-newyork">🇺🇸 NEW YORK</div>
+    <span class="sess-gate-note">· Gate 6 · Only these 2 sessions · 10AM–12AM SAST</span>
   </div>
 
   <div class="scan-overlay" id="scanOverlay">
@@ -838,11 +901,12 @@ function tick(){
   if(rsaEl) rsaEl.textContent=`Now SAST: ${p(sast.getUTCHours())}:${p(sast.getUTCMinutes())}`;
 
   // Sessions
-  const sessions={london:{s:8,e:17},newyork:{s:13,e:22},tokyo:{s:0,e:9},sydney:{s:21,e:6}};
-  Object.entries(sessions).forEach(([k,v])=>{
+  // Only London and New York — the only sessions we trade
+  const tradeSessions={london:{s:8,e:17},newyork:{s:13,e:22}};
+  Object.entries(tradeSessions).forEach(([k,v])=>{
     const el=document.getElementById(`sess-${k}`);
     if(!el)return;
-    const on=v.s<v.e?utcH>=v.s&&utcH<v.e:utcH>=v.s||utcH<v.e;
+    const on=utcH>=v.s&&utcH<v.e;
     el.className=`sess-pill ${on?'on':'off'}`;
   });
 
@@ -874,49 +938,12 @@ function getSession(){
   const h=new Date().getUTCHours();
   if(h>=8&&h<17)return'london';
   if(h>=13&&h<22)return'newyork';
-  if(h>=0&&h<9)return'tokyo';
-  return'sydney';
+  return'offhours'; // Tokyo/Sydney — we do not trade these
 }
-// Manual session override — 'all' means use real time, otherwise force selected
-let sessionOverride = 'all';
-
-function setSessOverride(sess){
-  sessionOverride = sess;
-  // Update ALL button
-  const allBtn = document.getElementById('sessAllBtn');
-  if(allBtn) allBtn.className = sess==='all' ? 'sess-all-btn active' : 'sess-all-btn';
-  // Update override note
-  const note = document.getElementById('sessOverrideNote');
-  if(note) note.style.display = sess==='all' ? 'none' : 'inline';
-  // Update pill visual states
-  ['london','newyork','tokyo','sydney'].forEach(s => {
-    const el = document.getElementById('sess-'+s);
-    if(!el) return;
-    if(sess==='all'){
-      // revert to real-time coloring done by tick()
-      const h=new Date().getUTCHours();
-      const sessions={london:{s:8,e:17},newyork:{s:13,e:22},tokyo:{s:0,e:9},sydney:{s:21,e:6}};
-      const sv=sessions[s];
-      const on=sv.s<sv.e?h>=sv.s&&h<sv.e:h>=sv.s||h<sv.e;
-      el.className=`sess-pill ${on?'on':'off'}`;
-    } else {
-      el.className = s===sess ? 'sess-pill selected' : 'sess-pill off';
-    }
-  });
-}
-
 function isActiveSession(){
-  if(sessionOverride === 'all'){
-    const s=getSession();
-    return s==='london'||s==='newyork';
-  }
-  // Manual override — always return true so Gate 6 passes
-  return true;
-}
-
-function getOverrideSession(){
-  if(sessionOverride !== 'all') return sessionOverride;
-  return getSession();
+  // Gate 6 is STRICT — London and New York only. No override. No exceptions.
+  const s=getSession();
+  return s==='london'||s==='newyork';
 }
 
 // ── API KEY ───────────────────────────────────
@@ -1107,7 +1134,6 @@ function applyGates(candles,pair){
   const ADX14=calcADX(highs,lows,closes);
   const ATR14=calcATR(highs,lows,closes);
   const sess=isActiveSession();
-  const currentSessName=getOverrideSession();
 
   const bGates=[price>EMA200,EMA9>EMA21&&EMA21>EMA50,MACD.macdLine>MACD.sig&&MACD.rising,RSI14>=45&&RSI14<=65,ADX14>=20,sess];
   const sGates=[price<EMA200,EMA9<EMA21&&EMA21<EMA50,MACD.macdLine<MACD.sig&&!MACD.rising,RSI14>=35&&RSI14<=55,ADX14>=20,sess];
