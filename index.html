@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Z2B Command Centre v1.5 -->
+<!-- Z2B Command Centre v1.3 — Demo/Live Fix -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -561,7 +561,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
     <div class="api-note" id="apiNote">Free key: twelvedata.com</div>
   </div>
 
-  <div class="data-badge sim" id="dataBadge">⚠ SIMULATED DATA</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+    <div class="data-badge sim" id="dataBadge">⚠ SIMULATED DATA</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.54rem;color:#b39ddb;" id="lastScanTime">
+      Auto-scan every 15 min · Press scan to start
+    </div>
+  </div>
 
   <div class="controls">
     <span class="ctrl-label">TIMEFRAME:</span>
@@ -638,7 +643,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
         <span class="hi-red">For the 60-day proof period — 1:100 is the ONLY acceptable setting. We are building a trading business, not gambling.</span>
       </div></div>
       <div class="rule-item"><span class="ri-num">PAIRS</span><div class="ri-text">EUR/USD · GBP/USD · USD/JPY · AUD/USD · USD/CAD · USD/CHF (Majors) · EUR/JPY · GBP/JPY (Crosses) · XAU/USD (Gold) · USOIL (WTI Crude) — 10 instruments scanned across M5, M15 and H1 timeframes.</div></div>
-      <div class="rule-item"><span class="ri-num">TF</span><div class="ri-text"><span class="hi-green">M15</span> (15-minute) and <span class="hi-green">H1</span> (1-hour) timeframes only. M15 for quick setups, H1 for stronger confluences and bigger rewards.</div></div>
+      <div class="rule-item"><span class="ri-num">TF</span><div class="ri-text"><span class="hi-green">M5</span> (5-minute), <span class="hi-green">M15</span> (15-minute) and <span class="hi-green">H1</span> (1-hour) timeframes. M5 for fast scalp entries (1:1.5 RR) · M15 for standard setups (1:2 RR) · H1 for strongest confluences (1:3 RR).</div></div>
     </div>
   </div>
 
@@ -659,6 +664,21 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
     </div>
   </div>
 
+  <!-- WATCH LIST -->
+  <div class="rule-block">
+    <div class="rule-block-head">
+      <span class="rb-icon">🔍</span>
+      <span class="rb-title">THE 5-OF-6 WATCH LIST</span>
+      <span class="rb-badge yellow">MONITOR — DO NOT TRADE</span>
+    </div>
+    <div class="rule-block-body">
+      <div class="rule-item"><span class="ri-num">W1</span><div class="ri-text"><strong>What is a Watch Signal?</strong> — When 5 of 6 gates pass the scanner shows a gold 🔍 WATCH card. One gate is missing. The card tells you exactly which gate is failing and what needs to change.</div></div>
+      <div class="rule-item"><span class="ri-num">W2</span><div class="ri-text"><span class="hi-red"><strong>Do NOT trade a Watch Signal.</strong></span> 5 gates is not 6 gates. The market is close but not confirmed. Your edge only exists when all 6 agree. Patience is the skill.</div></div>
+      <div class="rule-item"><span class="ri-num">W3</span><div class="ri-text"><strong>What to do with a Watch:</strong> Note the pair and the missing gate. Wait for the next auto-scan in 15 minutes. If all 6 pass on that scan — <span class="hi-green">that is your entry signal.</span></div></div>
+      <div class="rule-item"><span class="ri-num">W4</span><div class="ri-text"><strong>Watch Signals build your expertise.</strong> After 30 days — review your journal. Which gate blocked the most Watch Signals from becoming full signals? That is the gate you adjust first — based on real data, not theory.</div></div>
+    </div>
+  </div>
+
   <!-- RISK RULES -->
   <div class="rule-block">
     <div class="rule-block-head">
@@ -668,11 +688,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
     </div>
     <div class="rule-block-body">
       <div class="rule-item"><span class="ri-num">R1</span><div class="ri-text"><span class="hi-green">Risk exactly $1 per trade</span> — 0.01 micro lot on Exness Standard. No exceptions at this stage of proving the system.</div></div>
-      <div class="rule-item"><span class="ri-num">R2</span><div class="ri-text"><span class="hi-green">M15 = 1:2 Risk:Reward</span> — Risk $1 to make $2. Minimum 10 pip SL, 20 pip TP. Smaller timeframe, smaller target.</div></div>
-      <div class="rule-item"><span class="ri-num">R3</span><div class="ri-text"><span class="hi-green">H1 = 1:3 Risk:Reward</span> — Risk $1 to make $3. Minimum 15 pip SL, 45 pip TP. Bigger timeframe, bigger reward, more room to breathe.</div></div>
-      <div class="rule-item"><span class="ri-num">R4</span><div class="ri-text"><span class="hi-yellow">Maximum 3 open trades at any time.</span> Never open trade 4 while 3 are still running. Patience is the skill.</div></div>
-      <div class="rule-item"><span class="ri-num">R5</span><div class="ri-text"><span class="hi-red">After 3 consecutive losses — STOP for the day.</span> The market is not aligned today. Shut down. Come back tomorrow. Capital preserved = another day to trade.</div></div>
-      <div class="rule-item"><span class="ri-num">R6</span><div class="ri-text"><span class="hi-green">Let winners run to FULL TP.</span> Place the trade. Walk away. Let the system work. The math only delivers if you honour the full RR ratio every time.</div></div>
+      <div class="rule-item"><span class="ri-num">R2</span><div class="ri-text"><span class="hi-green">M5 = 1:1.5 Risk:Reward</span> — Risk $1 to make $1.50. Fast signals. Tighter SL. Best during high volatility sessions. More signals per day.</div></div>
+      <div class="rule-item"><span class="ri-num">R3</span><div class="ri-text"><span class="hi-green">M15 = 1:2 Risk:Reward</span> — Risk $1 to make $2. Minimum 10 pip SL, 20 pip TP. Standard timeframe for the proof period.</div></div>
+      <div class="rule-item"><span class="ri-num">R4</span><div class="ri-text"><span class="hi-green">H1 = 1:3 Risk:Reward</span> — Risk $1 to make $3. Minimum 15 pip SL, 45 pip TP. Strongest signals. Most room to breathe. Best for overnight trades.</div></div>
+      <div class="rule-item"><span class="ri-num">R5</span><div class="ri-text"><span class="hi-yellow">Maximum 3 open trades at any time.</span> Never open trade 4 while 3 are still running. Patience is the skill.</div></div>
+      <div class="rule-item"><span class="ri-num">R6</span><div class="ri-text"><span class="hi-red">After 3 consecutive losses — STOP for the day.</span> The market is not aligned today. Shut down. Come back tomorrow. Capital preserved = another day to trade.</div></div>
+      <div class="rule-item"><span class="ri-num">R7</span><div class="ri-text"><span class="hi-green">Let winners run to FULL TP.</span> Place the trade. Walk away. Let the system work. The math only delivers if you honour the full RR ratio every time.</div></div>
     </div>
   </div>
 
@@ -1499,6 +1520,10 @@ async function runScan(){
   if(scanCancelled){ scanResults=[]; return; }
   await new Promise(r=>setTimeout(r,200));
   overlay.classList.remove('active');btn.disabled=false;
+  // Record scan time and restart auto-scan timer
+  lastScanTime = new Date();
+  updateLastScanDisplay();
+  startAutoScan(); // Reset 15-min timer after manual scan
   const badge=document.getElementById('dataBadge');
   if(anyLive){badge.className='data-badge live';badge.textContent='✔ LIVE DATA — Twelve Data';}
   else if(anyErr){badge.className='data-badge err';badge.textContent='✗ API ERROR — Using simulated';}
@@ -1604,7 +1629,36 @@ document.querySelectorAll('.tf-btn').forEach(btn=>{
 });
 
 // Auto refresh every 5 min
-setInterval(()=>{if(scanResults.length&&apiKey&&consecutiveLosses<3)runScan();},300000);
+// Auto-rescan every 15 minutes silently while tab is open
+let autoScanInterval = null;
+let lastScanTime = null;
+
+function startAutoScan() {
+  if(autoScanInterval) clearInterval(autoScanInterval);
+  autoScanInterval = setInterval(async ()=>{
+    if(consecutiveLosses>=3) return;
+    // Silent rescan - update timestamp
+    lastScanTime = new Date();
+    updateLastScanDisplay();
+    await runScan();
+  }, 15 * 60 * 1000); // Every 15 minutes
+}
+
+function updateLastScanDisplay() {
+  const el = document.getElementById('lastScanTime');
+  if(!el || !lastScanTime) return;
+  const p = n => String(n).padStart(2,'0');
+  const sast = new Date(lastScanTime.getTime() + 2*3600000);
+  el.textContent = `Last scan: ${p(sast.getUTCHours())}:${p(sast.getUTCMinutes())} SAST · Next in 15 min`;
+  el.style.color = '#00e676';
+}
+
+// Start auto-scan when page loads
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    startAutoScan();
+  }, 2000);
+});
 
 updateDiscScore();
 renderTracker();
