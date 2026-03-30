@@ -1620,6 +1620,86 @@ renderTracker = function() {
   updateDiscScore();
   document.getElementById('statAccount').textContent = '$' + balance.toFixed(2);
 })();
+
+// ═══════════════════════════════════════════════
+// DEMO / LIVE MODE — FIXED IMPLEMENTATION
+// ═══════════════════════════════════════════════
+let tradingMode = localStorage.getItem('z2b_mode') || 'demo';
+
+function setTradingMode(mode) {
+  tradingMode = mode;
+  localStorage.setItem('z2b_mode', mode);
+
+  // Buttons
+  const demoBtn = document.getElementById('demoBtnToggle');
+  const liveBtn = document.getElementById('liveBtnToggle');
+  if(demoBtn) demoBtn.className = 'mode-toggle-btn demo-btn' + (mode==='demo'?' active':'');
+  if(liveBtn) liveBtn.className = 'mode-toggle-btn live-btn' + (mode==='live'?' active':'');
+
+  // Banners
+  const demoBnr = document.getElementById('demoBanner');
+  const liveBnr = document.getElementById('liveBanner');
+  if(demoBnr) demoBnr.className = 'demo-banner' + (mode==='demo'?' show':'');
+  if(liveBnr) liveBnr.className = 'live-banner' + (mode==='live'?' show':'');
+
+  // Note text
+  const note = document.getElementById('modeAccountNote');
+  if(note){
+    note.textContent = mode==='demo'
+      ? 'Practising with virtual money · No real money at risk'
+      : 'Real money active · Exness Standard · $1 risk per trade';
+    note.style.color = mode==='demo' ? '#ffd700' : '#00e676';
+  }
+
+  // Load the correct balance & trades for this mode
+  const balKey   = mode==='demo' ? 'z2b_demo_balance'  : 'z2b_live_balance';
+  const tradeKey = mode==='demo' ? 'z2b_trades_demo'   : 'z2b_trades_live';
+  balance = parseFloat(localStorage.getItem(balKey) || '10.00');
+  try { trades = JSON.parse(localStorage.getItem(tradeKey) || '[]'); } catch(e){ trades=[]; }
+
+  renderTracker();
+  updateModeTag();
+}
+
+function updateModeTag(){
+  const el = document.getElementById('statAccount');
+  if(!el) return;
+  const tag = tradingMode==='demo'
+    ? '<span class="demo-tag">DEMO</span>'
+    : '<span class="live-tag">LIVE</span>';
+  el.innerHTML = '$' + balance.toFixed(2) + ' ' + tag;
+}
+
+function saveModeData(){
+  const balKey   = tradingMode==='demo' ? 'z2b_demo_balance'  : 'z2b_live_balance';
+  const tradeKey = tradingMode==='demo' ? 'z2b_trades_demo'   : 'z2b_trades_live';
+  localStorage.setItem(balKey,   balance.toString());
+  localStorage.setItem(tradeKey, JSON.stringify(trades));
+}
+
+// Hook into existing renderTracker so mode data saves automatically
+const _modeRender = renderTracker;
+renderTracker = function(){
+  _modeRender();
+  saveModeData();
+  updateModeTag();
+};
+
+// Hook into setOutcome
+const _modeOutcome = setOutcome;
+setOutcome = function(id, outcome){
+  _modeOutcome(id, outcome);
+  saveModeData();
+  updateModeTag();
+};
+
+// Initialise after a short delay so DOM + functions are all ready
+window.addEventListener('load', function(){
+  setTimeout(function(){
+    setTradingMode(localStorage.getItem('z2b_mode') || 'demo');
+  }, 150);
+});
+
 </script>
 
 </body>
