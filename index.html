@@ -545,7 +545,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
     <div class="live-banner-title">💰 LIVE MODE — REAL MONEY ON EXNESS</div>
     <div class="live-banner-text">
       You are trading with <strong>real money</strong>. Every signal, every checklist item, every gate matters.
-      $1 risk per trade · 0.01 lot · Exness Standard Account. Your discipline is your protection.
+      $1 risk per trade · 0.01 lot · Exness Standard · 0.2 pip spread · 1:100 leverage · MT5. Your discipline is your protection.
     </div>
   </div>
 
@@ -620,7 +620,18 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
     </div>
     <div class="rule-block-body">
       <div class="rule-item"><span class="ri-num">GOAL</span><div class="ri-text">Prove a <span class="hi-green">repeatable, disciplined system</span> on a $10 account. Build slowly. Build with integrity. <strong>Your name is the brand.</strong> No promotion until the system proves itself through 30–60 days of real data.</div></div>
-      <div class="rule-item"><span class="ri-num">BROKER</span><div class="ri-text"><strong>Exness Standard Account</strong> · $10 minimum · 0.9 pip EUR/USD spread · MT4/MT5 · FSCA regulated · Instant withdrawals · Negative balance protection</div></div>
+      <div class="rule-item"><span class="ri-num">BROKER</span><div class="ri-text"><strong>Exness Standard Account</strong> · $10 minimum · <span class="hi-green">0.2 pip spread · MT5</span> · FSCA regulated · Instant withdrawals · Negative balance protection</div></div>
+
+      <div class="rule-item"><span class="ri-num">LEVR</span><div class="ri-text">
+        <strong>Leverage: 1:100 — FIXED for all 60 days. Non-negotiable.</strong><br><br>
+        Exness offers up to Unlimited leverage. We use <span class="hi-green">1:100 only</span> for the entire proof period. Here is exactly why:<br><br>
+        <span class="hi-yellow">▸ 1:100 makes $1 risk mathematically correct.</span> At 0.01 lot on 1:100 — a 10-pip move = $1. Every SL and TP in this app is calculated on that exact basis. Change the leverage and the math breaks.<br><br>
+        <span class="hi-yellow">▸ Higher leverage does not make you more money.</span> It makes your losses bigger. At 1:2000 — a 5-pip move against you on a $10 account can trigger a margin call before your stop loss even fires. Your account is gone before the system can protect you.<br><br>
+        <span class="hi-yellow">▸ Unlimited leverage is not a trading tool.</span> It is a gambling machine. Professional traders use the lowest leverage that still allows their strategy to work. 1:100 is that number for this system.<br><br>
+        <span class="hi-yellow">▸ Consistency builds proof.</span> If you use 1:100 on trade 1 and 1:500 on trade 50 — your data is not comparable. The 60-day journal only means something if every variable is constant. Leverage is a variable. Lock it at 1:100 and never touch it.<br><br>
+        <span class="hi-green">Available leverage options: 1:2 · 1:20 · 1:50 · 1:100 ✅ · 1:200 · 1:2000 · Unlimited ✗</span><br>
+        <span class="hi-red">For the 60-day proof period — 1:100 is the ONLY acceptable setting. We are building a trading business, not gambling.</span>
+      </div></div>
       <div class="rule-item"><span class="ri-num">PAIRS</span><div class="ri-text">EUR/USD · GBP/USD · USD/JPY · AUD/USD — Major pairs only. Tightest spreads. Strongest trends. Most predictable during London and New York sessions.</div></div>
       <div class="rule-item"><span class="ri-num">TF</span><div class="ri-text"><span class="hi-green">M15</span> (15-minute) and <span class="hi-green">H1</span> (1-hour) timeframes only. M15 for quick setups, H1 for stronger confluences and bigger rewards.</div></div>
     </div>
@@ -976,7 +987,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 // Z2B COMMAND CENTRE — COMPLETE SYSTEM
 // ═══════════════════════════════════════════════════════════
 
-const EXNESS = {spread:{"EUR/USD":0.9,"GBP/USD":1.2,"USD/JPY":1.0,"AUD/USD":1.1}};
+const EXNESS = {spread:{"EUR/USD":0.2,"GBP/USD":0.3,"USD/JPY":0.2,"AUD/USD":0.3}};
 const PAIRS = {
   "EUR/USD":{base:1.0854,pipSize:0.0001,micro_pv:0.10,dec:5},
   "GBP/USD":{base:1.2634,pipSize:0.0001,micro_pv:0.10,dec:5},
