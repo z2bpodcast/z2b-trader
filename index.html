@@ -213,9 +213,15 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 
 .session-bar{display:flex;gap:5px;margin-bottom:12px;align-items:center;flex-wrap:wrap;}
 .sess-label{font-family:'Share Tech Mono',monospace;font-size:0.54rem;color:var(--dim);}
-.sess-pill{font-family:'Share Tech Mono',monospace;font-size:0.54rem;padding:3px 8px;border:1px solid;}
+.sess-pill{font-family:'Share Tech Mono',monospace;font-size:0.54rem;padding:5px 11px;border:1px solid;cursor:pointer;transition:all 0.2s;user-select:none;}
 .sess-pill.on{border-color:#ffd700;color:#ffd700;background:rgba(255,215,0,0.1);font-weight:700;}
 .sess-pill.off{border-color:#5b2d8e;color:#b39ddb;background:rgba(255,255,255,0.03);}
+.sess-pill.selected{border-color:#ffd700;color:#1a0533;background:#ffd700;font-weight:700;}
+.sess-pill.override{border-color:#00e676;color:#00e676;background:rgba(0,230,118,0.1);font-weight:700;}
+.sess-override-note{font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#00e676;margin-left:6px;}
+.sess-all-btn{font-family:'Share Tech Mono',monospace;font-size:0.54rem;padding:5px 11px;border:1px solid #ffd700;color:#ffd700;background:transparent;cursor:pointer;transition:all 0.2s;}
+.sess-all-btn.active{background:#ffd700;color:#1a0533;font-weight:700;}
+.sess-all-btn:hover{background:rgba(255,215,0,0.15);}
 .data-badge{display:inline-flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:0.54rem;padding:3px 9px;border:1px solid;margin-bottom:12px;}
 .data-badge.live{border-color:#00e676;color:#00e676;background:rgba(0,230,118,0.08);}
 .data-badge.sim{border-color:#ffd700;color:#ffd700;background:rgba(255,215,0,0.07);}
@@ -468,10 +474,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 
   <div class="session-bar">
     <span class="sess-label">SESSIONS:</span>
-    <div class="sess-pill" id="sess-london">LONDON</div>
-    <div class="sess-pill" id="sess-newyork">NEW YORK</div>
-    <div class="sess-pill" id="sess-tokyo">TOKYO</div>
-    <div class="sess-pill" id="sess-sydney">SYDNEY</div>
+    <button class="sess-all-btn active" id="sessAllBtn" onclick="setSessOverride('all')">ALL</button>
+    <div class="sess-pill" id="sess-london" onclick="setSessOverride('london')">LONDON</div>
+    <div class="sess-pill" id="sess-newyork" onclick="setSessOverride('newyork')">NEW YORK</div>
+    <div class="sess-pill" id="sess-tokyo" onclick="setSessOverride('tokyo')">TOKYO</div>
+    <div class="sess-pill" id="sess-sydney" onclick="setSessOverride('sydney')">SYDNEY</div>
+    <span class="sess-override-note" id="sessOverrideNote" style="display:none;">⚡ MANUAL OVERRIDE — Gate 6 bypassed</span>
   </div>
 
   <div class="scan-overlay" id="scanOverlay">
@@ -869,9 +877,46 @@ function getSession(){
   if(h>=0&&h<9)return'tokyo';
   return'sydney';
 }
+// Manual session override — 'all' means use real time, otherwise force selected
+let sessionOverride = 'all';
+
+function setSessOverride(sess){
+  sessionOverride = sess;
+  // Update ALL button
+  const allBtn = document.getElementById('sessAllBtn');
+  if(allBtn) allBtn.className = sess==='all' ? 'sess-all-btn active' : 'sess-all-btn';
+  // Update override note
+  const note = document.getElementById('sessOverrideNote');
+  if(note) note.style.display = sess==='all' ? 'none' : 'inline';
+  // Update pill visual states
+  ['london','newyork','tokyo','sydney'].forEach(s => {
+    const el = document.getElementById('sess-'+s);
+    if(!el) return;
+    if(sess==='all'){
+      // revert to real-time coloring done by tick()
+      const h=new Date().getUTCHours();
+      const sessions={london:{s:8,e:17},newyork:{s:13,e:22},tokyo:{s:0,e:9},sydney:{s:21,e:6}};
+      const sv=sessions[s];
+      const on=sv.s<sv.e?h>=sv.s&&h<sv.e:h>=sv.s||h<sv.e;
+      el.className=`sess-pill ${on?'on':'off'}`;
+    } else {
+      el.className = s===sess ? 'sess-pill selected' : 'sess-pill off';
+    }
+  });
+}
+
 function isActiveSession(){
-  const s=getSession();
-  return s==='london'||s==='newyork';
+  if(sessionOverride === 'all'){
+    const s=getSession();
+    return s==='london'||s==='newyork';
+  }
+  // Manual override — always return true so Gate 6 passes
+  return true;
+}
+
+function getOverrideSession(){
+  if(sessionOverride !== 'all') return sessionOverride;
+  return getSession();
 }
 
 // ── API KEY ───────────────────────────────────
@@ -1062,6 +1107,7 @@ function applyGates(candles,pair){
   const ADX14=calcADX(highs,lows,closes);
   const ATR14=calcATR(highs,lows,closes);
   const sess=isActiveSession();
+  const currentSessName=getOverrideSession();
 
   const bGates=[price>EMA200,EMA9>EMA21&&EMA21>EMA50,MACD.macdLine>MACD.sig&&MACD.rising,RSI14>=45&&RSI14<=65,ADX14>=20,sess];
   const sGates=[price<EMA200,EMA9<EMA21&&EMA21<EMA50,MACD.macdLine<MACD.sig&&!MACD.rising,RSI14>=35&&RSI14<=55,ADX14>=20,sess];
@@ -1077,7 +1123,7 @@ function applyGates(candles,pair){
   const chips=[
     {n:'G1:EMA200',p:gateResults[0]},{n:'G2:EMA STACK',p:gateResults[1]},
     {n:'G3:MACD',p:gateResults[2]},{n:'G4:RSI ZONE',p:gateResults[3]},
-    {n:'G5:ADX≥20',p:gateResults[4]},{n:'G6:SESSION',p:gateResults[5]}
+    {n:'G5:ADX≥20',p:gateResults[4]},{n:'G6:'+currentSessName.toUpperCase(),p:gateResults[5]}
   ];
   return{signal,gatesPassed,confidence,chips,price,ATR14};
 }
