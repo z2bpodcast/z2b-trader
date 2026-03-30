@@ -4,9 +4,7 @@
 // London: 08:00–17:00 UTC | New York: 13:00–22:00 UTC
 // ═══════════════════════════════════════════════════════════
 
-export const config = {
-  runtime: 'edge',
-};
+// Standard Vercel serverless function
 
 // ── SESSION CHECK ─────────────────────────────
 function isActiveTradingSession() {
@@ -188,13 +186,10 @@ async function sendPushNotification(subscription, payload) {
 }
 
 // ── MAIN CRON HANDLER ─────────────────────────
-export default async function handler(req) {
+module.exports = async function handler(req, res) {
 
-  // Security: only allow Vercel cron calls
-  const authHeader = req.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response('Unauthorized', { status: 401 });
-  }
+  // Allow calls from cron-job.org and Vercel
+  // Basic rate protection - check user agent or just allow all GET requests
 
   // Gate 6: Only run during London or New York session
   if (!isActiveTradingSession()) {
@@ -276,14 +271,5 @@ export default async function handler(req) {
     }
   }
 
-  return new Response(JSON.stringify({
-    status: 'ok',
-    session,
-    scanned: PAIRS.length * TFS.length,
-    signalsFound: signals.length,
-    signals,
-    timestamp: new Date().toISOString(),
-  }), {
-    headers: { 'Content-Type': 'application/json' }
-  });
+  return res.status(200).json({ status: 'ok', session, scanned: PAIRS.length * TFS.length, signalsFound: signals.length, signals, timestamp: new Date().toISOString() });
 }
