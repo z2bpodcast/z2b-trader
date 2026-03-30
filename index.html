@@ -409,6 +409,17 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 .demo-account-note{font-family:'Share Tech Mono',monospace;font-size:0.5rem;
   color:#ffd700;text-align:center;margin-top:3px;letter-spacing:0.08em;}
 
+
+/* ── CANCEL SCAN BUTTON ── */
+.cancel-scan-btn{
+  font-family:'Share Tech Mono',monospace;font-size:0.65rem;
+  padding:8px 18px;background:transparent;
+  border:1px solid #ff4569;color:#ff4569;
+  cursor:pointer;letter-spacing:0.1em;transition:all 0.2s;
+  margin-top:4px;
+}
+.cancel-scan-btn:hover{background:rgba(255,69,105,0.12);}
+
 </style>
 </head>
 <body>
@@ -551,6 +562,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
     <div class="scan-text" id="scanText">RUNNING 6-GATE ANALYSIS...</div>
     <div class="scan-sub" id="scanSub">Fetching live data · Computing confluence formula</div>
     <div class="scan-progress"><div class="scan-fill" id="scanFill"></div></div>
+    <button class="cancel-scan-btn" onclick="cancelScan()">✕ STOP SCAN — BACK TO DASHBOARD</button>
   </div>
 
   <div id="oppsContainer">
@@ -1195,12 +1207,18 @@ function simCandles(pair,count=210){
 async function fetchCandles(pair,tf){
   if(!apiKey)return null;
   try{
+    const controller = new AbortController();
+    const timeout = setTimeout(()=>controller.abort(), 6000);
     const url=`https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(pair)}&interval=${TD_INT[tf]}&outputsize=210&apikey=${apiKey}`;
-    const r=await fetch(url);
+    const r=await fetch(url, {signal: controller.signal});
+    clearTimeout(timeout);
     const d=await r.json();
     if(d.status==='error'||!d.values||d.values.length<50)return null;
     return d.values.reverse().map(c=>({open:parseFloat(c.open),high:parseFloat(c.high),low:parseFloat(c.low),close:parseFloat(c.close)}));
-  }catch{return null;}
+  }catch(e){
+    console.log('Fetch failed for',pair,tf,e.message);
+    return null;
+  }
 }
 
 // ── RENDER CARDS ─────────────────────────────
@@ -1276,11 +1294,24 @@ function renderCards(results){
 }
 
 // ── RUN SCAN ──────────────────────────────────
+// ── CANCEL SCAN ──────────────────────────────
+let scanCancelled = false;
+
+function cancelScan(){
+  scanCancelled = true;
+  document.getElementById('scanOverlay').classList.remove('active');
+  document.getElementById('scanBtn').disabled = false;
+  document.getElementById('scanFill').style.width = '0%';
+  document.getElementById('scanText').textContent = 'RUNNING 6-GATE ANALYSIS...';
+  document.getElementById('scanSub').textContent = 'Fetching live data · Computing confluence formula';
+}
+
 async function runScan(){
   if(consecutiveLosses>=3){
     document.getElementById('lossWarning').style.display='block';
     return;
   }
+  scanCancelled = false;
   const btn=document.getElementById('scanBtn');
   const overlay=document.getElementById('scanOverlay');
   const fill=document.getElementById('scanFill');
@@ -1292,15 +1323,22 @@ async function runScan(){
 
   for(const pair of SCAN_PAIRS){
     for(const tf of tfs){
+      if(scanCancelled) break;
       document.getElementById('scanText').textContent=`SCANNING ${pair} ${tf}...`;
       document.getElementById('scanSub').textContent=apiKey?'Fetching 210 candles · Running 6-gate formula...':'Simulating candles · Running 6-gate formula...';
       let candles=null,isLive=false;
       if(apiKey){
         await new Promise(r=>setTimeout(r,420));
-        candles=await fetchCandles(pair,tf);
-        if(candles){isLive=true;anyLive=true;}else anyErr=true;
+        // 5 second timeout — if API hangs, fall back to simulation immediately
+        const fetchWithTimeout = Promise.race([
+          fetchCandles(pair,tf),
+          new Promise(r=>setTimeout(()=>r(null),5000))
+        ]);
+        candles = await fetchWithTimeout;
+        if(candles){isLive=true;anyLive=true;}else{anyErr=true;}
       }
-      if(!candles){await new Promise(r=>setTimeout(r,200));candles=simCandles(pair);}
+      // Always fall back to simulation if no candles
+      if(!candles){await new Promise(r=>setTimeout(r,80));candles=simCandles(pair);}
       const result=applyGates(candles,pair);
       const levels=result.signal!=='no-signal'?calcLevels(pair,tf,result.signal,result.ATR14,result.price):{spreadPips:EXNESS.spread[pair],spreadCost:'—',viable:false,rrRatio:RR[tf],slPips:0,tpPips:0,riskDollars:1,rewardDollars:0};
       const finalResult={...result,pair,tf,levels,isLive};
@@ -1314,7 +1352,9 @@ async function runScan(){
       }
       done++;fill.style.width=(done/total*100)+'%';
     }
+    if(scanCancelled) break;
   }
+  if(scanCancelled){ scanResults=[]; return; }
   await new Promise(r=>setTimeout(r,200));
   overlay.classList.remove('active');btn.disabled=false;
   const badge=document.getElementById('dataBadge');
