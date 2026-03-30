@@ -14,7 +14,7 @@ echo "🚀 Pushing to GitHub..."
 git push
 
 echo "⚡ Triggering Vercel deployment..."
-curl -X POST "https://api.vercel.com/v1/integrations/deploy/prj_JxtrepkHhYOO6wNUyqiEnOS27T9y/4KlhoVblRf"
+curl -X POST "https://api.vercel.com/v1/integrations/deploy/prj_JxtrepkHhYOO6wNUyqiEnOS27T9y/cKrzMSOyW6"
 
 echo ""
 echo "✅ Done! Vercel is deploying — check in 30 seconds."
