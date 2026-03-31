@@ -1,18 +1,9 @@
-// ═══════════════════════════════════════════════
-// Z2B TRADING COMMAND CENTRE — SERVICE WORKER
-// Version: 2.0 — Server Push Enabled
-// ═══════════════════════════════════════════════
-
-const CACHE_NAME = 'z2b-trader-v2';
+// Z2B TRADING COMMAND CENTRE — SERVICE WORKER v3
+const CACHE_NAME = 'z2b-trader-v3';
 const OFFLINE_URL = '/index.html';
 
-const CACHE_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-];
+const CACHE_ASSETS = ['/', '/index.html', '/manifest.json'];
 
-// ── INSTALL ──────────────────────────────────
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -23,7 +14,6 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// ── ACTIVATE ─────────────────────────────────
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((names) =>
@@ -32,10 +22,10 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// ── FETCH ─────────────────────────────────────
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   if (event.request.url.includes('twelvedata.com')) return;
+  if (event.request.url.includes('faireconomy.media')) return;
   if (event.request.url.includes('chrome-extension')) return;
 
   event.respondWith(
@@ -52,50 +42,36 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// ── PUSH NOTIFICATIONS ────────────────────────
 self.addEventListener('push', (event) => {
-  let data = {
-    title: '🔔 Z2B Signal Alert!',
-    body: 'All 6 gates passed — open Z2B Trader now.',
-    url: '/'
-  };
-
+  let data = { title: '🔔 Z2B Signal Alert!', body: 'All 7 gates passed — open Z2B Trader now.', url: '/' };
   if (event.data) {
     try { data = { ...data, ...event.data.json() }; }
     catch(e) { data.body = event.data.text(); }
   }
-
-  // Build notification based on signal direction
   const isBuy  = data.signal === 'BUY';
   const isSell = data.signal === 'SELL';
   const emoji  = isBuy ? '🟢' : isSell ? '🔴' : '🔔';
-
-  const options = {
-    body: data.body,
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
-    vibrate: [300, 100, 300, 100, 300, 100, 600],
-    data: { url: data.url || '/' },
-    actions: [
-      { action: 'open',    title: `${emoji} Open App` },
-      { action: 'dismiss', title: '✕ Dismiss'        }
-    ],
-    requireInteraction: true,
-    tag: `z2b-signal-${data.pair || 'alert'}`,
-    renotify: true,
-    silent: false,
-  };
-
   event.waitUntil(
-    self.registration.showNotification(data.title, options)
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      vibrate: [300, 100, 300, 100, 300, 100, 600],
+      data: { url: data.url || '/' },
+      actions: [
+        { action: 'open',    title: emoji + ' Open App' },
+        { action: 'dismiss', title: '✕ Dismiss' }
+      ],
+      requireInteraction: true,
+      tag: 'z2b-signal-' + (data.pair || 'alert'),
+      renotify: true,
+    })
   );
 });
 
-// ── NOTIFICATION CLICK ────────────────────────
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   if (event.action === 'dismiss') return;
-
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
       for (const client of list) {
@@ -106,9 +82,8 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// ── MESSAGE HANDLER ───────────────────────────
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
-console.log('[Z2B SW v2.0] Service Worker loaded — Server Push enabled');
+console.log('[Z2B SW v3] Loaded — 7-Gate Trading System');

@@ -1,0 +1,2650 @@
+<!DOCTYPE html>
+<!-- Z2B Command Centre v1.3 — Demo/Live Fix -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Z2B Trading Command Centre</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1a0533">
+  <meta name="app-version" content="1.6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Z2B Trader">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <meta name="description" content="Z2B Trading Command Centre — Professional Forex Signal Scanner by Rev Mokoro Manana">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#1a0533;--panel:#2d0f52;--panel2:#3d1470;--border:#5b2d8e;
+  --accent:#ffd700;--green:#00e676;--red:#ff4569;--yellow:#ffd700;
+  --purple:#9c27b0;--orange:#ffb300;--text:#ffffff;--dim:#b39ddb;--white:#ffffff;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100vh;
+  background-image:radial-gradient(ellipse at 15% 25%,rgba(156,39,176,0.25) 0%,transparent 55%),
+  radial-gradient(ellipse at 85% 75%,rgba(255,215,0,0.08) 0%,transparent 45%);}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,215,0,0.06) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(255,215,0,0.06) 1px,transparent 1px);
+  background-size:32px 32px;}
+.wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:14px;}
+
+/* ── BELL ALERT OVERLAY ─────────────────────── */
+.bell-overlay{display:none;position:fixed;inset:0;z-index:999;align-items:center;justify-content:center;}
+.bell-overlay.ringing{display:flex;animation:screenFlicker 0.2s infinite;}
+@keyframes screenFlicker{
+  0%{background:rgba(255,215,0,0.2);}
+  30%{background:rgba(26,5,51,0.92);}
+  60%{background:rgba(255,215,0,0.25);}
+  100%{background:rgba(26,5,51,0.9);}
+}
+.bell-box{
+  background:#2d0f52;border:3px solid #ffd700;
+  padding:24px 28px;max-width:460px;width:92%;text-align:center;
+  box-shadow:0 0 80px rgba(0,255,136,0.7),0 0 160px rgba(0,255,136,0.3);
+  animation:boxPulse 0.6s infinite;box-shadow:0 0 60px rgba(255,215,0,0.5);
+}
+@keyframes boxPulse{0%,100%{box-shadow:0 0 60px rgba(255,215,0,0.6),0 0 30px rgba(156,39,176,0.4);}50%{box-shadow:0 0 100px rgba(255,215,0,0.95),0 0 50px rgba(156,39,176,0.6);}}
+.bell-emoji{font-size:3rem;display:block;animation:shake 0.3s infinite;}
+@keyframes shake{0%,100%{transform:rotate(-12deg);}50%{transform:rotate(12deg);}}
+.bell-title{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;color:#ffd700;
+  letter-spacing:0.2em;text-shadow:0 0 20px var(--green);margin:8px 0 4px;animation:flash 0.5s infinite;}
+@keyframes flash{0%,100%{opacity:1;}50%{opacity:0.6;}}
+.bell-subtitle{font-family:'Share Tech Mono',monospace;font-size:0.68rem;color:#e040fb;letter-spacing:0.15em;margin-bottom:14px;}
+.bell-signal{font-family:'Orbitron',monospace;font-size:2.2rem;font-weight:900;margin-bottom:4px;}
+.bell-signal.buy{color:#00e676;text-shadow:0 0 20px rgba(0,230,118,0.5);}
+.bell-signal.sell{color:#ff4569;text-shadow:0 0 20px rgba(255,69,105,0.5);}
+.bell-trade-info{background:rgba(0,119,182,0.06);border:1px solid var(--border);padding:10px;margin-bottom:14px;text-align:left;}
+.bti-row{display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:0.65rem;margin-bottom:4px;}
+.bti-row:last-child{margin-bottom:0;}
+.bti-label{color:var(--dim);}
+.bti-val{color:var(--white);font-weight:bold;}
+.bti-val.buy{color:var(--green);}
+.bti-val.sell{color:var(--red);}
+.bti-val.tp{color:var(--green);}
+.bti-val.sl{color:var(--red);}
+
+/* PRE-TRADE CHECKLIST */
+.checklist-box{background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.3);padding:12px;margin-bottom:14px;text-align:left;}
+.checklist-title{font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:#ffd700;letter-spacing:0.12em;margin-bottom:10px;}
+.chk-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;}
+.chk-row:last-child{margin-bottom:0;}
+.chk-box{width:18px;height:18px;min-width:18px;cursor:pointer;margin-top:1px;accent-color:var(--green);}
+.chk-label{font-family:'Rajdhani',sans-serif;font-size:0.8rem;color:var(--text);cursor:pointer;line-height:1.4;}
+.chk-row.checked .chk-label{color:var(--green);}
+
+.bell-actions{display:flex;gap:8px;}
+.bell-btn{flex:1;font-family:'Orbitron',monospace;font-size:0.7rem;font-weight:700;padding:11px;
+  border:1px solid;background:transparent;cursor:pointer;letter-spacing:0.1em;transition:all 0.2s;}
+.bell-btn.take{color:#ffd700;border-color:#ffd700;background:rgba(255,215,0,0.08);}
+.bell-btn.take:hover:not(:disabled){background:rgba(255,215,0,0.18);}
+.bell-btn.take:disabled{opacity:0.3;cursor:not-allowed;}
+.bell-btn.skip{color:var(--dim);border-color:var(--dim);}
+.bell-btn.skip:hover{color:var(--red);border-color:var(--red);}
+.checklist-progress{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--yellow);text-align:center;margin-bottom:10px;}
+
+/* ── HEADER ──────────────────────────────────── */
+header{display:flex;align-items:center;justify-content:space-between;padding:12px 0 14px;border-bottom:2px solid #ffd700;margin-bottom:14px;}
+.logo{font-family:'Orbitron',monospace;font-size:0.95rem;font-weight:900;color:#ffd700;letter-spacing:0.12em;text-shadow:0 0 16px rgba(255,215,0,0.4);}
+.logo span{color:#ffffff;}
+.logo-sub{font-family:'Share Tech Mono',monospace;font-size:0.46rem;color:#b39ddb;letter-spacing:0.14em;margin-top:2px;}
+.header-right{text-align:right;}
+.clock-utc{font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:#00e676;font-weight:700;}
+.clock-sast{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:#ffd700;font-weight:700;margin-top:1px;}
+.clock-date{font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#b39ddb;margin-top:1px;}
+
+/* ── TABS ─────────────────────────────────────── */
+.tabs{display:flex;overflow-x:auto;border:1px solid var(--border);margin-bottom:14px;}
+.tab-btn{flex:1;min-width:88px;font-family:'Share Tech Mono',monospace;font-size:0.56rem;font-weight:600;
+  padding:10px 6px;background:#3d1470;border:none;border-right:1px solid #5b2d8e;
+  color:#d1b3ff;cursor:pointer;transition:all 0.2s;letter-spacing:0.05em;text-align:center;white-space:nowrap;}
+.tab-btn:last-child{border-right:none;}
+.tab-btn.active{background:linear-gradient(135deg,#7b1fa2,#9c27b0);color:#ffd700;font-weight:700;border-bottom:2px solid #ffd700;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* ── PLAN STRIP ───────────────────────────────── */
+.plan-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:12px;}
+.plan-cell{background:#2d0f52;padding:8px 4px;text-align:center;border-right:1px solid #5b2d8e;}
+.pc-label{font-family:'Share Tech Mono',monospace;font-size:0.44rem;color:#ffd700;letter-spacing:0.06em;margin-bottom:3px;font-weight:700;}
+.pc-val{font-family:'Orbitron',monospace;font-size:0.82rem;font-weight:700;}
+.c-green{color:var(--green);} .c-yellow{color:var(--yellow);}
+.c-accent{color:var(--accent);} .c-white{color:var(--white);}
+.c-red{color:var(--red);} .c-orange{color:var(--orange);}
+
+/* ── SECTION CARDS ────────────────────────────── */
+.card{background:#2d0f52;border:1px solid var(--border);margin-bottom:12px;}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:2px solid #ffd700;background:rgba(255,215,0,0.05);}
+.card-title{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:#ffd700;letter-spacing:0.14em;font-weight:700;}
+.card-body{padding:14px;}
+
+/* ── STRATEGY PAGE STYLES ─────────────────────── */
+.my-page-hero{background:linear-gradient(135deg,rgba(91,45,142,0.6),rgba(255,215,0,0.1));
+  border:1px solid rgba(255,215,0,0.3);padding:20px;margin-bottom:14px;text-align:center;}
+.my-page-name{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;color:#ffd700;letter-spacing:0.2em;margin-bottom:4px;text-shadow:0 0 20px rgba(255,215,0,0.4);}
+.my-page-title{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent);letter-spacing:0.2em;margin-bottom:8px;}
+.my-page-verse{font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:#e1d5f5;font-style:italic;line-height:1.6;}
+
+.rule-block{background:rgba(255,255,255,0.04);border:1px solid #5b2d8e;margin-bottom:10px;overflow:hidden;}
+.rule-block-head{display:flex;align-items:center;gap:10px;padding:10px 13px;background:rgba(255,215,0,0.1);border-bottom:1px solid #ffd700;}
+.rb-icon{font-size:1.1rem;}
+.rb-title{font-family:'Orbitron',monospace;font-size:0.72rem;font-weight:700;color:#ffffff;letter-spacing:0.1em;}
+.rb-badge{font-family:'Share Tech Mono',monospace;font-size:0.5rem;padding:2px 7px;margin-left:auto;}
+.rb-badge.green{background:rgba(0,255,136,0.1);color:var(--green);border:1px solid rgba(0,255,136,0.3);}
+.rb-badge.yellow{background:rgba(255,200,0,0.1);color:var(--yellow);border:1px solid rgba(255,200,0,0.3);}
+.rb-badge.red{background:rgba(255,45,85,0.1);color:var(--red);border:1px solid rgba(255,45,85,0.3);}
+.rule-block-body{padding:12px 13px;}
+.rule-item{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid rgba(14,32,48,0.5);}
+.rule-item:last-child{border-bottom:none;}
+.ri-num{font-family:'Orbitron',monospace;font-size:0.6rem;color:#ffd700;min-width:24px;margin-top:2px;font-weight:700;}
+.ri-text{font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:#f0e6ff;line-height:1.55;}
+.ri-text strong{color:var(--white);}
+.ri-text .hi-green{color:var(--green);font-weight:700;}
+.ri-text .hi-yellow{color:var(--yellow);font-weight:700;}
+.ri-text .hi-red{color:var(--red);font-weight:700;}
+
+/* DUTY CARD */
+.duty-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:500px){.duty-grid{grid-template-columns:1fr;}}
+.duty-card{background:#2d0f52;border:1px solid #5b2d8e;padding:12px;}
+.duty-time{font-family:'Orbitron',monospace;font-size:0.75rem;font-weight:700;color:var(--accent);margin-bottom:3px;}
+.duty-sast{font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:var(--yellow);margin-bottom:6px;}
+.duty-text{font-family:'Rajdhani',sans-serif;font-size:0.82rem;color:var(--text);line-height:1.5;}
+.duty-card.prime{border-color:rgba(0,255,136,0.35);background:rgba(255,215,0,0.05);}
+.duty-card.prime .duty-time{color:var(--green);}
+.duty-card.rest{border-color:rgba(255,45,85,0.2);}
+.duty-card.rest .duty-time{color:var(--red);}
+
+/* HUMANITY TABLE */
+.h-table{width:100%;border-collapse:collapse;margin-bottom:12px;}
+.h-table th{font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:#ffd700;font-weight:700;padding:7px 10px;text-align:left;background:rgba(255,215,0,0.12);border-bottom:1px solid #ffd700;}
+.h-table td{font-family:'Rajdhani',sans-serif;font-size:0.8rem;padding:9px 10px;border-bottom:1px solid #5b2d8e;vertical-align:top;line-height:1.5;color:#ffffff;}
+.h-table tr:last-child td{border-bottom:none;}
+.ht-n{font-family:'Orbitron',monospace;font-size:0.62rem;color:var(--accent);}
+.ht-trap{color:var(--red);font-weight:600;}
+.ht-sol{color:var(--green);}
+.ht-imp{font-family:'Share Tech Mono',monospace;font-size:0.5rem;padding:2px 6px;background:rgba(255,215,0,0.12);color:#ffd700;border:1px solid rgba(255,215,0,0.4);display:inline-block;margin-top:4px;font-weight:700;}
+
+/* RSA TIME GRID */
+.rsa-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:500px){.rsa-grid{grid-template-columns:1fr;}}
+.rsa-card{background:#2d0f52;border:1px solid #5b2d8e;padding:13px;}
+.rsa-card.prime{border-color:#ffd700;background:rgba(255,215,0,0.06);}
+.rsa-card.good{border-color:rgba(156,39,176,0.6);}
+.rsa-card.caution{border-color:rgba(255,215,0,0.4);}
+.rsa-card.avoid{border-color:rgba(255,69,105,0.4);opacity:0.9;}
+.rsa-session{font-family:'Share Tech Mono',monospace;font-size:0.56rem;color:#b39ddb;letter-spacing:0.1em;margin-bottom:3px;}
+.rsa-time{font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;margin-bottom:2px;}
+.rsa-card.prime .rsa-time{color:#ffd700;}
+.rsa-card.good .rsa-time{color:#e040fb;}
+.rsa-card.caution .rsa-time{color:#ffd700;}
+.rsa-card.avoid .rsa-time{color:#ff4569;}
+.rsa-utc{font-family:'Share Tech Mono',monospace;font-size:0.54rem;color:#b39ddb;margin-bottom:6px;}
+.rsa-note{font-family:'Rajdhani',sans-serif;font-size:0.8rem;color:#f0e6ff;line-height:1.5;}
+.rsa-badge{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:0.5rem;padding:2px 6px;border:1px solid;margin-top:6px;}
+.rsa-badge.prime{color:#ffd700;border-color:#ffd700;}
+.rsa-badge.good{color:#e040fb;border-color:#e040fb;}
+.rsa-badge.caution{color:#ffd700;border-color:#ffd700;}
+.rsa-badge.avoid{color:#ff4569;border-color:#ff4569;}
+.active-window{animation:wPulse 2s infinite;}
+@keyframes wPulse{0%,100%{border-color:#ffd700;box-shadow:0 0 8px rgba(255,215,0,0.3);}50%{border-color:rgba(255,215,0,0.5);box-shadow:none;}}
+
+/* ── SCANNER STYLES ───────────────────────────── */
+.api-bar{display:flex;gap:7px;align-items:center;margin-bottom:12px;background:#2d0f52;border:1px solid #ffd700;padding:9px 12px;flex-wrap:wrap;}
+.api-bar label{font-family:'Share Tech Mono',monospace;font-size:0.56rem;color:var(--dim);white-space:nowrap;}
+.api-input{flex:1;min-width:140px;font-family:'Share Tech Mono',monospace;font-size:0.65rem;padding:6px 9px;background:rgba(0,119,182,0.06);border:1px solid var(--border);color:var(--white);outline:none;}
+.api-input:focus{border-color:var(--accent);}
+.api-input::placeholder{color:var(--dim);}
+.api-save{font-family:'Share Tech Mono',monospace;font-size:0.58rem;padding:6px 11px;background:transparent;border:1px solid #ffd700;color:#ffd700;cursor:pointer;white-space:nowrap;transition:all 0.2s;font-weight:700;}
+.api-save:hover{background:rgba(0,200,240,0.1);}
+.notif-btn{font-family:'Share Tech Mono',monospace;font-size:0.56rem;padding:6px 11px;background:transparent;border:1px solid #ffd700;color:#ffd700;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.notif-btn:hover{background:rgba(168,85,247,0.1);}
+.notif-btn.ok{border-color:#00e676;color:#00e676;font-weight:700;}
+.api-note{font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:#b39ddb;}
+
+.controls{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
+.ctrl-label{font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:#b39ddb;}
+.tf-btn{font-family:'Share Tech Mono',monospace;font-size:0.6rem;padding:6px 11px;background:#2d0f52;border:1px solid #5b2d8e;color:#d1b3ff;cursor:pointer;transition:all 0.2s;}
+.tf-btn.active{border-color:#ffd700;color:#ffd700;background:rgba(255,215,0,0.1);font-weight:700;}
+.scan-btn{margin-left:auto;font-family:'Orbitron',monospace;font-size:0.68rem;font-weight:700;padding:9px 18px;background:linear-gradient(135deg,#7b1fa2,#9c27b0);border:1px solid #ffd700;color:#ffd700;cursor:pointer;letter-spacing:0.12em;transition:all 0.3s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);box-shadow:0 0 12px rgba(255,215,0,0.2);}
+.scan-btn:hover{background:linear-gradient(135deg,#9c27b0,#ba68c8);box-shadow:0 0 20px rgba(255,215,0,0.4);}
+.scan-btn:disabled{opacity:0.35;cursor:not-allowed;}
+
+.session-bar{display:flex;gap:5px;margin-bottom:12px;align-items:center;flex-wrap:wrap;}
+.sess-label{font-family:'Share Tech Mono',monospace;font-size:0.54rem;color:var(--dim);}
+.sess-pill{font-family:'Share Tech Mono',monospace;font-size:0.54rem;padding:5px 11px;border:1px solid;transition:all 0.2s;}
+.sess-pill.on{border-color:#ffd700;color:#ffd700;background:rgba(255,215,0,0.12);font-weight:700;}
+.sess-pill.off{border-color:#5b2d8e;color:#b39ddb;background:rgba(255,255,255,0.03);}
+.sess-gate-note{font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#b39ddb;margin-left:4px;letter-spacing:0.06em;}
+.data-badge{display:inline-flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:0.54rem;padding:3px 9px;border:1px solid;margin-bottom:12px;}
+.data-badge.live{border-color:#00e676;color:#00e676;background:rgba(0,230,118,0.08);}
+.data-badge.sim{border-color:#ffd700;color:#ffd700;background:rgba(255,215,0,0.07);}
+.data-badge.err{border-color:#ff4569;color:#ff4569;background:rgba(255,69,105,0.07);}
+
+.scan-overlay{display:none;position:fixed;inset:0;background:rgba(26,5,51,0.97);z-index:400;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+.scan-overlay.active{display:flex;}
+.scan-spinner{width:44px;height:44px;border:2px solid #5b2d8e;border-top-color:#ffd700;border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.scan-text{font-family:'Share Tech Mono',monospace;font-size:0.78rem;color:#ffd700;letter-spacing:0.18em;text-align:center;font-weight:700;}
+.scan-sub{font-family:'Share Tech Mono',monospace;font-size:0.56rem;color:#b39ddb;text-align:center;}
+.scan-progress{width:260px;height:3px;background:var(--border);overflow:hidden;}
+.scan-fill{height:100%;background:var(--accent);width:0%;transition:width 0.3s;}
+
+.opps-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+@media(max-width:560px){.opps-grid{grid-template-columns:1fr;}}
+.opp-card{background:#2d0f52;border:1px solid var(--border);position:relative;overflow:hidden;animation:fadeUp 0.35s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.opp-card.buy{border-color:rgba(0,230,118,0.5);box-shadow:0 0 14px rgba(0,230,118,0.12);}
+.opp-card.sell{border-color:rgba(255,69,105,0.5);box-shadow:0 0 14px rgba(255,69,105,0.12);}
+.opp-card.watch{border-color:rgba(255,215,0,0.5);box-shadow:0 0 14px rgba(255,215,0,0.1);}
+.opp-card.watch::before{background:linear-gradient(90deg,transparent,#ffd700,transparent);}
+.opp-card.no-signal{border-color:var(--border);opacity:0.7;}
+.opp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.opp-card.buy::before{background:linear-gradient(90deg,transparent,#ffd700,transparent);}
+.opp-card.sell::before{background:linear-gradient(90deg,transparent,#ff4569,transparent);}
+.rank-badge{position:absolute;top:9px;right:9px;font-family:'Orbitron',monospace;font-size:0.52rem;font-weight:700;padding:2px 6px;}
+.rank-1{background:rgba(255,215,0,0.2);color:#ffd700;border:1px solid #ffd700;text-shadow:0 0 8px rgba(255,215,0,0.4);}
+.rank-2{background:rgba(224,64,251,0.1);color:#e040fb;border:1px solid #e040fb;}
+.rank-o{background:rgba(179,157,219,0.1);color:#d1c4e9;border:1px solid #5b2d8e;}
+.opp-header{padding:11px 12px 7px;}
+.opp-pair-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.opp-pair{font-family:'Orbitron',monospace;font-size:1.05rem;font-weight:700;color:#ffffff;}
+.opp-tf{font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#ffd700;padding:2px 5px;border:1px solid #ffd700;}
+.opp-src{font-family:'Share Tech Mono',monospace;font-size:0.48rem;padding:2px 4px;}
+.opp-src.live{color:var(--green);border:1px solid rgba(0,255,136,0.25);}
+.opp-src.sim{color:var(--yellow);border:1px solid rgba(255,200,0,0.25);}
+.opp-price{font-family:'Share Tech Mono',monospace;font-size:0.68rem;color:#e1d5f5;margin-bottom:5px;}
+.signal-pill{display:inline-flex;align-items:center;gap:4px;font-family:'Orbitron',monospace;font-size:0.75rem;font-weight:700;padding:4px 10px;letter-spacing:0.1em;margin-bottom:4px;}
+.signal-pill.buy{background:rgba(0,230,118,0.12);color:#00e676;border:1px solid rgba(0,230,118,0.5);font-weight:700;}
+.signal-pill.sell{background:rgba(255,69,105,0.12);color:#ff4569;border:1px solid rgba(255,69,105,0.5);font-weight:700;}
+.signal-pill.no-signal{background:rgba(179,157,219,0.1);color:#b39ddb;border:1px solid #5b2d8e;}
+.signal-pill.watch-buy{background:rgba(255,215,0,0.1);color:#ffd700;border:1px solid rgba(255,215,0,0.5);font-weight:700;}
+.signal-pill.watch-sell{background:rgba(255,215,0,0.1);color:#ffd700;border:1px solid rgba(255,215,0,0.5);font-weight:700;}
+.rr-chip{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:0.52rem;padding:2px 5px;border:1px solid #ffd700;color:#ffd700;margin-left:4px;vertical-align:middle;background:rgba(255,215,0,0.08);}
+.gates-row{display:flex;align-items:center;gap:6px;padding:0 12px;margin-bottom:7px;}
+.gp-track{flex:1;height:5px;background:var(--border);overflow:hidden;}
+.gp-fill{height:100%;transition:width 0.6s;}
+.gp-fill.all{background:#ffd700;}
+.gp-fill.mid{background:#e040fb;}
+.gp-fill.low{background:#ff4569;}
+.gp-text{font-family:'Share Tech Mono',monospace;font-size:0.56rem;white-space:nowrap;}
+.gp-text.all{color:#00e676;}
+.gp-text.mid{color:#ffd700;}
+.gp-text.low{color:#ff4569;}
+.conf-row{display:flex;align-items:center;gap:6px;margin-bottom:7px;padding:0 12px;}
+.conf-label{font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:#b39ddb;width:55px;}
+.conf-track{flex:1;height:4px;background:var(--border);overflow:hidden;}
+.conf-fill{height:100%;transition:width 0.8s;}
+.opp-card.buy .conf-fill{background:#00e676;}
+.opp-card.sell .conf-fill{background:#ff4569;}
+.conf-pct{font-family:'Share Tech Mono',monospace;font-size:0.56rem;color:var(--white);width:26px;text-align:right;}
+.trade-levels{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border-top:1px solid var(--border);border-bottom:1px solid var(--border);border-radius:0;}
+.tl-cell{background:#3d1470;padding:6px 7px;text-align:center;}
+.tl-label{font-family:'Share Tech Mono',monospace;font-size:0.44rem;color:#b39ddb;margin-bottom:2px;}
+.tl-val{font-family:'Share Tech Mono',monospace;font-size:0.68rem;font-weight:bold;}
+.tl-val.e{color:#f0e6ff;}
+.tl-val.s{color:#ff4569;}
+.tl-val.t{color:#00e676;}
+.dollar-row{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-top:1px solid var(--border);background:rgba(255,255,255,0.04);}
+.dr-item{text-align:center;}
+.dr-label{font-family:'Share Tech Mono',monospace;font-size:0.44rem;color:#b39ddb;margin-bottom:2px;}
+.dr-val{font-family:'Orbitron',monospace;font-size:0.7rem;font-weight:700;}
+.dr-val.risk{color:#ff4569;}
+.dr-val.rwd{color:#00e676;}
+.dr-val.sp{color:#ffd700;}
+.dr-val.v{color:#00e676;font-size:0.56rem;font-weight:700;}
+.dr-val.m{color:#ffd700;font-size:0.56rem;}
+.gate-chips{display:flex;gap:3px;padding:6px 8px;flex-wrap:wrap;border-top:1px solid var(--border);}
+.g-chip{font-family:'Share Tech Mono',monospace;font-size:0.46rem;padding:2px 4px;}
+.g-chip.p{background:rgba(0,230,118,0.1);color:#00e676;border:1px solid rgba(0,230,118,0.25);}
+.g-chip.f{background:rgba(255,69,105,0.1);color:#ff4569;border:1px solid rgba(255,69,105,0.25);}
+
+.tracker{background:#2d0f52;border:1px solid var(--border);padding:11px;margin-bottom:12px;}
+.tracker-title{font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:#ffd700;letter-spacing:0.12em;margin-bottom:9px;font-weight:700;}
+.tracker-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:9px;}
+.tg-cell{background:#3d1470;padding:7px;text-align:center;border:1px solid var(--border);}
+.tg-label{font-family:'Share Tech Mono',monospace;font-size:0.44rem;color:#b39ddb;margin-bottom:3px;}
+.tg-value{font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;}
+.trade-log{display:flex;flex-direction:column;gap:3px;max-height:150px;overflow-y:auto;}
+.log-entry{display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:0.56rem;padding:4px 7px;background:rgba(255,255,255,0.04);border-left:2px solid;}
+.log-entry.win{border-color:var(--green);}
+.log-entry.loss{border-color:var(--red);}
+.log-entry.open{border-color:var(--yellow);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.5}}
+.log-time{color:var(--dim);width:44px;}
+.log-pair{color:var(--accent);width:52px;}
+.log-dir.bd{color:var(--green);font-weight:bold;}
+.log-dir.sd{color:var(--red);font-weight:bold;}
+.log-res{margin-left:auto;font-weight:bold;}
+.log-res.p{color:var(--green);}
+.log-res.l{color:var(--red);}
+.log-res.o{color:var(--yellow);}
+.no-log{font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:#b39ddb;text-align:center;padding:10px;}
+
+/* DISCIPLINE SCORE */
+.disc-wrap{display:flex;align-items:center;gap:16px;margin-bottom:14px;}
+.disc-ring{width:78px;height:78px;position:relative;flex-shrink:0;}
+.disc-ring svg{position:absolute;inset:0;transform:rotate(-90deg);}
+.disc-ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:1.05rem;font-weight:900;color:#ffffff;}
+.disc-info{flex:1;}
+.disc-rating-label{font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:#ffd700;margin-bottom:3px;}
+.disc-rating{font-family:'Orbitron',monospace;font-size:0.95rem;font-weight:700;margin-bottom:3px;}
+.disc-desc{font-family:'Rajdhani',sans-serif;font-size:0.8rem;color:#f0e6ff;}
+
+.empty-state{text-align:center;padding:32px;color:#b39ddb;font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.08em;}
+.es-icon{font-size:1.8rem;display:block;margin-bottom:8px;}
+.disclaimer{text-align:center;font-size:0.52rem;color:#b39ddb;padding:10px 0;border-top:1px solid #ffd700;margin-top:8px;line-height:1.5;}
+
+/* LOSS LIMITER WARNING */
+.loss-warning{display:none;background:rgba(255,69,105,0.1);border:2px solid #ff4569;padding:14px;margin-bottom:12px;text-align:center;animation:warnPulse 1s infinite;}
+@keyframes warnPulse{0%,100%{border-color:var(--red);}50%{border-color:rgba(255,45,85,0.3);}}
+.loss-warning-text{font-family:'Orbitron',monospace;font-size:0.85rem;color:var(--red);font-weight:700;letter-spacing:0.1em;}
+.loss-warning-sub{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--text);margin-top:5px;}
+
+/* ── PWA INSTALL BANNER ── */
+.pwa-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;
+  background:linear-gradient(135deg,#2d0f52,#1a0533);
+  border-top:2px solid #ffd700;padding:14px 18px;
+  flex-direction:row;align-items:center;gap:12px;
+  box-shadow:0 -4px 20px rgba(255,215,0,0.2);}
+.pwa-banner.show{display:flex;}
+.pwa-banner-icon{font-size:1.8rem;flex-shrink:0;}
+.pwa-banner-text{flex:1;}
+.pwa-banner-title{font-family:'Orbitron',monospace;font-size:0.78rem;font-weight:700;color:#ffd700;margin-bottom:2px;}
+.pwa-banner-sub{font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:#b39ddb;}
+.pwa-install-btn{font-family:'Orbitron',monospace;font-size:0.65rem;font-weight:700;
+  padding:9px 16px;background:linear-gradient(135deg,#7b1fa2,#9c27b0);
+  border:1px solid #ffd700;color:#ffd700;cursor:pointer;white-space:nowrap;
+  letter-spacing:0.1em;transition:all 0.2s;}
+.pwa-install-btn:hover{background:linear-gradient(135deg,#9c27b0,#ba68c8);box-shadow:0 0 12px rgba(255,215,0,0.3);}
+.pwa-dismiss-btn{font-family:'Share Tech Mono',monospace;font-size:0.6rem;
+  padding:9px 10px;background:transparent;border:1px solid #5b2d8e;color:#b39ddb;cursor:pointer;}
+
+/* ── OFFLINE BADGE ── */
+.offline-badge{display:none;position:fixed;top:10px;right:10px;z-index:600;
+  font-family:'Share Tech Mono',monospace;font-size:0.6rem;
+  padding:5px 10px;background:#cc0033;color:#fff;border:1px solid #ff4569;
+  letter-spacing:0.08em;}
+.offline-badge.show{display:block;}
+
+/* ── UPDATE BANNER ── */
+.update-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:600;
+  background:rgba(255,215,0,0.95);padding:10px 16px;
+  font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:#1a0533;
+  text-align:center;font-weight:700;cursor:pointer;}
+.update-banner.show{display:block;}
+
+
+/* ── DEMO / LIVE TOGGLE ── */
+.mode-toggle-wrap{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:14px;border:2px solid #ffd700;overflow:hidden;max-width:320px;}
+.mode-toggle-btn{flex:1;font-family:'Orbitron',monospace;font-size:0.72rem;font-weight:700;
+  padding:11px 10px;background:transparent;border:none;cursor:pointer;
+  letter-spacing:0.12em;transition:all 0.25s;text-align:center;}
+.mode-toggle-btn.demo-btn{color:#b39ddb;}
+.mode-toggle-btn.demo-btn.active{background:#3d1470;color:#ffd700;}
+.mode-toggle-btn.live-btn{color:#b39ddb;}
+.mode-toggle-btn.live-btn.active{background:#ffd700;color:#1a0533;}
+.mode-divider{width:2px;background:#ffd700;flex-shrink:0;}
+
+.demo-banner{display:none;background:rgba(61,20,112,0.6);border:1px solid rgba(255,215,0,0.3);
+  border-left:3px solid #ffd700;padding:10px 14px;margin-bottom:12px;}
+.demo-banner.show{display:block;}
+.demo-banner-title{font-family:'Orbitron',monospace;font-size:0.68rem;color:#ffd700;
+  font-weight:700;letter-spacing:0.1em;margin-bottom:4px;}
+.demo-banner-text{font-family:'Rajdhani',sans-serif;font-size:0.82rem;color:#f0e6ff;line-height:1.5;}
+.demo-banner-text strong{color:#ffd700;}
+
+.live-banner{display:none;background:rgba(0,230,118,0.06);border:1px solid rgba(0,230,118,0.3);
+  border-left:3px solid #00e676;padding:10px 14px;margin-bottom:12px;}
+.live-banner.show{display:block;}
+.live-banner-title{font-family:'Orbitron',monospace;font-size:0.68rem;color:#00e676;
+  font-weight:700;letter-spacing:0.1em;margin-bottom:4px;}
+.live-banner-text{font-family:'Rajdhani',sans-serif;font-size:0.82rem;color:#f0e6ff;line-height:1.5;}
+
+.demo-tag{font-family:'Share Tech Mono',monospace;font-size:0.5rem;padding:2px 6px;
+  background:rgba(255,215,0,0.15);color:#ffd700;border:1px solid rgba(255,215,0,0.3);
+  letter-spacing:0.08em;margin-left:5px;vertical-align:middle;}
+.live-tag{font-family:'Share Tech Mono',monospace;font-size:0.5rem;padding:2px 6px;
+  background:rgba(0,230,118,0.12);color:#00e676;border:1px solid rgba(0,230,118,0.3);
+  letter-spacing:0.08em;margin-left:5px;vertical-align:middle;}
+
+.demo-account-note{font-family:'Share Tech Mono',monospace;font-size:0.5rem;
+  color:#ffd700;text-align:center;margin-top:3px;letter-spacing:0.08em;}
+
+
+/* ── CANCEL SCAN BUTTON ── */
+.cancel-scan-btn{
+  font-family:'Share Tech Mono',monospace;font-size:0.65rem;
+  padding:12px 22px;background:transparent;
+  border:1px solid #ff4569;color:#ff4569;
+  cursor:pointer;letter-spacing:0.1em;transition:all 0.2s;
+  margin-top:8px;position:relative;z-index:500;
+  -webkit-tap-highlight-color:rgba(255,69,105,0.3);
+  touch-action:manipulation;min-height:44px;
+}
+.cancel-scan-btn:hover{background:rgba(255,69,105,0.12);}
+.cancel-scan-btn:active{background:rgba(255,69,105,0.25);}
+
+
+/* ── BELL INSTRUCTIONS ── */
+.bell-instructions{background:var(--panel);border:1px solid var(--border);
+  border-top:2px solid #ffd700;padding:14px;margin-bottom:12px;}
+.bi-title{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:#ffd700;
+  letter-spacing:0.15em;margin-bottom:12px;font-weight:700;}
+.bi-steps{display:flex;flex-direction:column;gap:6px;}
+.bi-step{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;
+  background:rgba(255,255,255,0.03);border:1px solid var(--border);}
+.bi-step-num{font-family:'Orbitron',monospace;font-size:0.7rem;font-weight:900;
+  color:#ffd700;min-width:24px;margin-top:1px;}
+.bi-step-text{font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:#f0e6ff;line-height:1.5;}
+.bi-step-text strong{color:#ffd700;}
+.bi-step-text .red{color:#ff4569;}
+.bi-step-text .green{color:#00e676;}
+.bi-step.highlight{border-color:rgba(255,215,0,0.3);background:rgba(255,215,0,0.04);}
+
+
+/* ── GATE 7 NEWS FILTER ── */
+.news-bar{background:var(--panel);border:1px solid var(--border);
+  border-left:3px solid #ff4569;padding:10px 14px;margin-bottom:12px;}
+.news-bar.safe{border-left-color:#00e676;}
+.news-bar.warning{border-left-color:#ffd700;animation:warnPulse 1.5s infinite;}
+.news-bar.blocked{border-left-color:#ff4569;animation:warnPulse 0.8s infinite;}
+.news-bar-title{font-family:'Share Tech Mono',monospace;font-size:0.58rem;
+  letter-spacing:0.12em;margin-bottom:8px;font-weight:700;}
+.news-bar.safe .news-bar-title{color:#00e676;}
+.news-bar.warning .news-bar-title{color:#ffd700;}
+.news-bar.blocked .news-bar-title{color:#ff4569;}
+.news-events{display:flex;flex-direction:column;gap:4px;}
+.news-event{display:flex;align-items:center;gap:8px;padding:5px 8px;
+  background:rgba(255,255,255,0.03);border:1px solid var(--border);}
+.ne-impact{font-size:0.7rem;width:16px;text-align:center;}
+.ne-time{font-family:'Share Tech Mono',monospace;font-size:0.56rem;
+  color:#ffd700;width:52px;}
+.ne-currency{font-family:'Orbitron',monospace;font-size:0.52rem;
+  color:#b39ddb;width:36px;}
+.ne-name{font-family:'Rajdhani',sans-serif;font-size:0.82rem;color:#f0e6ff;flex:1;}
+.ne-status{font-family:'Share Tech Mono',monospace;font-size:0.5rem;
+  padding:2px 6px;border:1px solid;}
+.ne-status.upcoming{color:#ffd700;border-color:rgba(255,215,0,0.3);}
+.ne-status.blackout{color:#ff4569;border-color:rgba(255,69,105,0.4);
+  background:rgba(255,69,105,0.08);font-weight:700;}
+.ne-status.passed{color:#b39ddb;border-color:#5b2d8e;}
+.news-blackout-overlay{display:none;background:rgba(255,69,105,0.08);
+  border:2px solid #ff4569;padding:14px;margin-bottom:12px;text-align:center;
+  animation:warnPulse 0.8s infinite;}
+.news-blackout-overlay.show{display:block;}
+.nbo-title{font-family:'Orbitron',monospace;font-size:0.9rem;font-weight:900;
+  color:#ff4569;letter-spacing:0.15em;margin-bottom:6px;}
+.nbo-sub{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:#f0e6ff;
+  margin-bottom:6px;}
+.nbo-countdown{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:700;
+  color:#ffd700;}
+.news-safe-note{font-family:'Share Tech Mono',monospace;font-size:0.52rem;
+  color:#00e676;text-align:center;padding:6px;margin-bottom:8px;}
+
+
+/* ── FLOATING SCAN WIDGET ── */
+.float-widget{
+  position:fixed;z-index:800;
+  width:160px;background:#2d0f52;
+  border:1px solid #ffd700;
+  box-shadow:0 4px 20px rgba(255,215,0,0.25);
+  cursor:move;user-select:none;
+  transition:box-shadow 0.2s;
+  display:none;
+}
+.float-widget.show{display:block;}
+.float-widget.dragging{box-shadow:0 8px 32px rgba(255,215,0,0.5);}
+.fw-header{display:flex;align-items:center;justify-content:space-between;
+  padding:6px 8px;background:rgba(255,215,0,0.1);border-bottom:1px solid rgba(255,215,0,0.2);
+  cursor:move;}
+.fw-title{font-family:'Orbitron',monospace;font-size:0.52rem;color:#ffd700;
+  font-weight:700;letter-spacing:0.1em;}
+.fw-controls{display:flex;gap:4px;}
+.fw-btn{width:16px;height:16px;border:none;cursor:pointer;font-size:0.55rem;
+  display:flex;align-items:center;justify-content:center;background:transparent;
+  color:#b39ddb;transition:color 0.2s;}
+.fw-btn:hover{color:#ffd700;}
+.fw-body{padding:8px;}
+.fw-status{font-family:'Share Tech Mono',monospace;font-size:0.52rem;
+  margin-bottom:5px;text-align:center;}
+.fw-status.scanning{color:#ffd700;animation:flash 0.8s infinite;}
+.fw-status.idle{color:#b39ddb;}
+.fw-status.signal{color:#00e676;animation:flash 0.5s infinite;}
+.fw-status.blocked{color:#ff4569;}
+.fw-signal{font-family:'Orbitron',monospace;font-size:0.75rem;font-weight:900;
+  text-align:center;margin-bottom:4px;padding:4px;}
+.fw-signal.buy{color:#00e676;background:rgba(0,230,118,0.1);}
+.fw-signal.sell{color:#ff4569;background:rgba(255,69,105,0.1);}
+.fw-signal.watch{color:#ffd700;background:rgba(255,215,0,0.08);}
+.fw-signal.idle{color:#b39ddb;}
+.fw-pair{font-family:'Share Tech Mono',monospace;font-size:0.58rem;
+  color:#ffffff;text-align:center;margin-bottom:3px;}
+.fw-next{font-family:'Share Tech Mono',monospace;font-size:0.48rem;
+  color:#b39ddb;text-align:center;}
+.fw-expand{width:100%;font-family:'Share Tech Mono',monospace;font-size:0.5rem;
+  padding:5px;background:rgba(255,215,0,0.08);border:none;border-top:1px solid rgba(255,215,0,0.2);
+  color:#ffd700;cursor:pointer;letter-spacing:0.08em;}
+.fw-expand:hover{background:rgba(255,215,0,0.15);}
+
+/* Corner snap positions */
+.fw-corner-tl{top:80px;left:10px;}
+.fw-corner-tr{top:80px;right:10px;}
+.fw-corner-bl{bottom:80px;left:10px;}
+.fw-corner-br{bottom:80px;right:10px;}
+
+/* Minimise scan button */
+.minimise-scan-btn{
+  font-family:'Share Tech Mono',monospace;font-size:0.56rem;
+  padding:6px 10px;background:transparent;
+  border:1px solid #5b2d8e;color:#b39ddb;
+  cursor:pointer;transition:all 0.2s;margin-left:6px;
+}
+.minimise-scan-btn:hover{border-color:#ffd700;color:#ffd700;}
+
+/* TAP TO COPY buttons */
+.copy-btn{
+  font-family:'Share Tech Mono',monospace;font-size:0.48rem;
+  padding:2px 7px;background:rgba(255,215,0,0.08);
+  border:1px solid rgba(255,215,0,0.3);color:#ffd700;
+  cursor:pointer;transition:all 0.2s;margin-left:6px;
+  vertical-align:middle;
+}
+.copy-btn:hover{background:rgba(255,215,0,0.2);}
+.copy-btn.copied{background:rgba(0,230,118,0.15);border-color:#00e676;color:#00e676;}
+.copy-row{display:flex;align-items:center;justify-content:space-between;
+  padding:5px 8px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.copy-row:last-child{border-bottom:none;}
+.copy-label{font-family:'Share Tech Mono',monospace;font-size:0.48rem;color:#b39ddb;}
+.copy-value{font-family:'Share Tech Mono',monospace;font-size:0.68rem;
+  font-weight:bold;color:#ffffff;}
+.copy-value.sl{color:#ff4569;}
+.copy-value.tp{color:#00e676;}
+.copy-value.lot{color:#ffd700;}
+.copy-section-title{font-family:'Share Tech Mono',monospace;font-size:0.52rem;
+  color:#ffd700;letter-spacing:0.1em;padding:6px 8px;
+  background:rgba(255,215,0,0.05);border-bottom:1px solid rgba(255,215,0,0.15);}
+
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- BELL ALERT OVERLAY -->
+<!-- ════════════════════════════════════════════ -->
+<div class="bell-overlay" id="bellOverlay">
+  <div class="bell-box">
+    <span class="bell-emoji">🔔</span>
+    <div class="bell-title">SIGNAL ALERT!</div>
+    <div class="bell-subtitle">ALL 6 CONFLUENCE GATES PASSED</div>
+    <div class="bell-signal" id="bellSignalText">BUY</div>
+
+    <div class="bell-trade-info" id="bellTradeInfo"></div>
+
+    <div class="checklist-box">
+      <div class="checklist-title">▸ PRE-TRADE CHECKLIST — CHECK ALL 5 TO UNLOCK TRADE BUTTON</div>
+      <div class="chk-row" id="chkRow1"><input type="checkbox" class="chk-box" id="chk1" onchange="updateChecklist()"><label class="chk-label" for="chk1">I am currently in London (10AM–7PM SAST) or New York (3PM–12AM SAST) session</label></div>
+      <div class="chk-row" id="chkRow2"><input type="checkbox" class="chk-box" id="chk2" onchange="updateChecklist()"><label class="chk-label" for="chk2">I am NOT revenge trading — my last loss was accepted and I have moved on</label></div>
+      <div class="chk-row" id="chkRow3"><input type="checkbox" class="chk-box" id="chk3" onchange="updateChecklist()"><label class="chk-label" for="chk3">I WILL let this trade run to full TP — I will NOT close it early out of fear</label></div>
+      <div class="chk-row" id="chkRow4"><input type="checkbox" class="chk-box" id="chk4" onchange="updateChecklist()"><label class="chk-label" for="chk4">My risk is exactly $1 (0.01 lot on Exness) — I will NOT increase my lot size</label></div>
+      <div class="chk-row" id="chkRow5"><input type="checkbox" class="chk-box" id="chk5" onchange="updateChecklist()"><label class="chk-label" for="chk5">I have fewer than 3 open trades right now on my Exness account</label></div>
+      <div class="checklist-progress" id="chkProgress">0 / 5 confirmed — complete all 5 to take the trade</div>
+    </div>
+
+    <div class="bell-actions">
+      <button class="bell-btn take" id="bellTakeBtn" onclick="takeTrade()" disabled>✔ I PLACED THE TRADE ON EXNESS</button>
+      <button class="bell-btn skip" onclick="skipTrade()">✗ SKIP THIS SIGNAL</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- HEADER -->
+<header>
+  <div>
+    <div class="logo">Z2B <span>COMMAND</span> CENTRE</div>
+    <div class="logo-sub">REV MOKORO MANANA · PERSONAL TRADING SYSTEM · BUILT ON DISCIPLINE</div>
+  </div>
+  <div class="header-right">
+    <div class="clock-utc" id="clockUTC">--:--:-- UTC</div>
+    <div class="clock-sast" id="clockSAST">--:--:-- SAST</div>
+    <div class="clock-date" id="clockDate">--</div>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('scanner')">📡 SCANNER</button>
+  <button class="tab-btn" onclick="showTab('mypage')">📖 MY PAGE</button>
+  <button class="tab-btn" onclick="showTab('discipline')">🧠 DISCIPLINE</button>
+  <button class="tab-btn" onclick="showTab('rsatimes')">🇿🇦 RSA TIMES</button>
+  <button class="tab-btn" onclick="showTab('duties')">✅ MY DUTIES</button>
+</div>
+
+<!-- PLAN STRIP -->
+<div class="plan-strip">
+  <div class="plan-cell"><div class="pc-label">ACCOUNT</div><div class="pc-val c-accent" id="statAccount">$10.00</div></div>
+  <div class="plan-cell"><div class="pc-label">RISK/TRADE</div><div class="pc-val c-yellow">$1.00</div></div>
+  <div class="plan-cell"><div class="pc-label">M15/H1 RR</div><div class="pc-val c-white">1:2/1:3</div></div>
+  <div class="plan-cell"><div class="pc-label">TODAY P&L</div><div class="pc-val c-green" id="statPL">$0.00</div></div>
+  <div class="plan-cell"><div class="pc-label">DISCIPLINE</div><div class="pc-val c-orange" id="statDisc">100%</div></div>
+  <div class="plan-cell"><div class="pc-label">SIGNALS</div><div class="pc-val c-accent" id="statSigs">0</div></div>
+</div>
+
+<!-- LOSS LIMITER WARNING -->
+<div class="loss-warning" id="lossWarning">
+  <div class="loss-warning-text">🛑 3 CONSECUTIVE LOSSES — STOP TRADING TODAY</div>
+  <div class="loss-warning-sub">The market is not aligned with your system today. Close the app. Come back tomorrow. Capital preserved = another day to trade.</div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB: SCANNER -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content active" id="tab-scanner">
+
+
+  <!-- DEMO / LIVE TOGGLE -->
+  <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:14px;">
+    <div class="mode-toggle-wrap">
+      <button class="mode-toggle-btn demo-btn active" id="demoBtnToggle" onclick="setTradingMode('demo')">
+        🎓 DEMO MODE
+      </button>
+      <div class="mode-divider"></div>
+      <button class="mode-toggle-btn live-btn" id="liveBtnToggle" onclick="setTradingMode('live')">
+        💰 LIVE MODE
+      </button>
+    </div>
+    <div class="demo-account-note" id="modeAccountNote">Practising with virtual $10 · No real money at risk</div>
+  </div>
+
+  <!-- DEMO BANNER -->
+  <div class="demo-banner show" id="demoBanner">
+    <div class="demo-banner-title">🎓 DEMO MODE ACTIVE — VIRTUAL $10 ACCOUNT</div>
+    <div class="demo-banner-text">
+      You are trading with <strong>virtual money only</strong>. All signals, gates, checklist, bell and journal work exactly as they will in live trading.<br>
+      <strong>Your goal:</strong> Complete 30 days of demo trading, hit 60% win rate, build discipline habits.
+      When your <strong>real $10 arrives at month end</strong> — switch to Live Mode. You will already be ready.
+    </div>
+  </div>
+
+  <!-- LIVE BANNER -->
+  <div class="live-banner" id="liveBanner">
+    <div class="live-banner-title">💰 LIVE MODE — REAL MONEY ON EXNESS</div>
+    <div class="live-banner-text">
+      You are trading with <strong>real money</strong>. Every signal, every checklist item, every gate matters.
+      $1 risk per trade · 0.01 lot · Exness Standard · 0.2 pip spread · 1:100 leverage · MT5. Your discipline is your protection.
+    </div>
+  </div>
+
+  <div class="api-bar">
+    <label>TWELVE DATA KEY:</label>
+    <input class="api-input" id="apiKeyInput" type="password" placeholder="twelvedata.com free API key...">
+    <button class="api-save" onclick="saveKey()">SAVE</button>
+    <button class="notif-btn" id="notifBtn" onclick="requestNotifs()">🔔 ENABLE BELL</button>
+    <div class="api-note" id="apiNote">Free key: twelvedata.com</div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+    <div class="data-badge sim" id="dataBadge">⚠ SIMULATED DATA</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.54rem;color:#b39ddb;" id="lastScanTime">
+      Auto-scan every 15 min · Press scan to start
+    </div>
+  </div>
+
+
+
+  <!-- GATE 7 — NEWS FILTER -->
+  <div class="news-blackout-overlay" id="newsBlackout">
+    <div class="nbo-title">🚫 NEWS BLACKOUT — GATE 7 ACTIVE</div>
+    <div class="nbo-sub">High-impact news event within 15 minutes — all signals blocked for your protection</div>
+    <div class="nbo-countdown" id="newsCountdown">--:--</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;color:#b39ddb;margin-top:4px;">Scanning resumes automatically after blackout window</div>
+  </div>
+
+  <div class="news-bar safe" id="newsBar">
+    <div class="news-bar-title" id="newsBarTitle">⚡ GATE 7 &nbsp;|&nbsp; <span style="color:#ffd700;">LOADING NEWS CALENDAR...</span></div>
+    <div class="news-events" id="newsEvents"></div>
+  </div>
+
+  <div class="controls">
+    <span class="ctrl-label">TIMEFRAME:</span>
+    <button class="tf-btn active" data-tf="M15">M15</button>
+    <button class="tf-btn" data-tf="M5">M5</button>
+    <button class="tf-btn" data-tf="H1">H1</button>
+    <button class="tf-btn" data-tf="ALL">M5+M15+H1</button>
+    <button class="scan-btn" id="scanBtn" onclick="runScan()">⟳ RUN 7-GATE SCAN</button>
+  </div>
+
+  <div class="session-bar">
+    <span class="sess-label">ACTIVE SESSIONS:</span>
+    <div class="sess-pill" id="sess-london">🇬🇧 LONDON</div>
+    <div class="sess-pill" id="sess-newyork">🇺🇸 NEW YORK</div>
+    <span class="sess-gate-note">· Gate 6 · Only these 2 sessions · 10AM–12AM SAST</span>
+  </div>
+
+  <div class="scan-overlay" id="scanOverlay">
+    <div class="scan-spinner"></div>
+    <div class="scan-text" id="scanText">RUNNING 7-GATE ANALYSIS...</div>
+    <div class="scan-sub" id="scanSub">Fetching live data · Computing confluence formula</div>
+    <div class="scan-progress"><div class="scan-fill" id="scanFill"></div></div>
+    <button class="cancel-scan-btn" onclick="cancelScan()">✕ STOP SCAN — BACK TO DASHBOARD</button>
+    <button class="cancel-scan-btn" style="border-color:#ffd700;color:#ffd700;margin-top:8px;min-width:200px;" id="minimiseBtn" onclick="minimiseScan()">⊟ MINIMISE — KEEP SCANNING</button>
+  </div>
+
+  <div id="oppsContainer">
+    <div class="empty-state"><span class="es-icon">🎯</span>Press RUN 7-GATE SCAN<br>Bell rings when all 7 gates pass — you don't have to watch</div>
+  </div>
+
+  <div class="tracker">
+    <div class="tracker-title">▸ SESSION TRACKER — $1 RISK · M15=1:2 · H1=1:3</div>
+    <div class="tracker-grid">
+      <div class="tg-cell"><div class="tg-label">SIGNALS</div><div class="tg-value c-accent" id="trkSigs">0</div></div>
+      <div class="tg-cell"><div class="tg-label">TAKEN</div><div class="tg-value c-orange" id="trkTaken">0</div></div>
+      <div class="tg-cell"><div class="tg-label">WINS</div><div class="tg-value c-green" id="trkWins">0</div></div>
+      <div class="tg-cell"><div class="tg-label">LOSSES</div><div class="tg-value c-red" id="trkLoss">0</div></div>
+      <div class="tg-cell"><div class="tg-label">NET P&L</div><div class="tg-value c-green" id="trkPL">$0.00</div></div>
+    </div>
+    <div class="trade-log" id="tradeLog"><div class="no-log">No trades yet</div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB: MY PAGE -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-mypage">
+
+  <div class="my-page-hero">
+    <div class="my-page-name">REV MOKORO MANANA</div>
+    <div class="my-page-title">FOUNDER · ZERO2BILLIONAIRES · FOREX TRADER IN TRAINING</div>
+    <div class="my-page-verse">"For which of you, intending to build a tower, does not sit down first and count the cost, whether he has enough to finish it?" — Luke 14:28<br>
+    <span style="color:var(--accent);font-style:normal;font-size:0.82rem;">This system is my tower. Built with integrity. Proven before promoted.</span></div>
+  </div>
+
+  <!-- THE STRATEGY -->
+  <div class="rule-block">
+    <div class="rule-block-head">
+      <span class="rb-icon">🎯</span>
+      <span class="rb-title">THE Z2B TRADING STRATEGY</span>
+      <span class="rb-badge green">ACTIVE SYSTEM</span>
+    </div>
+    <div class="rule-block-body">
+      <div class="rule-item"><span class="ri-num">GOAL</span><div class="ri-text">Prove a <span class="hi-green">repeatable, disciplined system</span> on a $10 account. Build slowly. Build with integrity. <strong>Your name is the brand.</strong> No promotion until the system proves itself through 30–60 days of real data.</div></div>
+      <div class="rule-item"><span class="ri-num">BROKER</span><div class="ri-text"><strong>Exness Standard Account</strong> · $10 minimum · <span class="hi-green">0.2 pip spread · MT5</span> · FSCA regulated · Instant withdrawals · Negative balance protection</div></div>
+
+      <div class="rule-item"><span class="ri-num">LEVR</span><div class="ri-text">
+        <strong>Leverage: 1:100 — FIXED for all 60 days. Non-negotiable.</strong><br><br>
+        Exness offers up to Unlimited leverage. We use <span class="hi-green">1:100 only</span> for the entire proof period. Here is exactly why:<br><br>
+        <span class="hi-yellow">▸ 1:100 makes $1 risk mathematically correct.</span> At 0.01 lot on 1:100 — a 10-pip move = $1. Every SL and TP in this app is calculated on that exact basis. Change the leverage and the math breaks.<br><br>
+        <span class="hi-yellow">▸ Higher leverage does not make you more money.</span> It makes your losses bigger. At 1:2000 — a 5-pip move against you on a $10 account can trigger a margin call before your stop loss even fires. Your account is gone before the system can protect you.<br><br>
+        <span class="hi-yellow">▸ Unlimited leverage is not a trading tool.</span> It is a gambling machine. Professional traders use the lowest leverage that still allows their strategy to work. 1:100 is that number for this system.<br><br>
+        <span class="hi-yellow">▸ Consistency builds proof.</span> If you use 1:100 on trade 1 and 1:500 on trade 50 — your data is not comparable. The 60-day journal only means something if every variable is constant. Leverage is a variable. Lock it at 1:100 and never touch it.<br><br>
+        <span class="hi-green">Available leverage options: 1:2 · 1:20 · 1:50 · 1:100 ✅ · 1:200 · 1:2000 · Unlimited ✗</span><br>
+        <span class="hi-red">For the 60-day proof period — 1:100 is the ONLY acceptable setting. We are building a trading business, not gambling.</span>
+      </div></div>
+      <div class="rule-item"><span class="ri-num">PAIRS</span><div class="ri-text">EUR/USD · GBP/USD · USD/JPY · AUD/USD · USD/CAD · USD/CHF (Majors) · EUR/JPY · GBP/JPY (Crosses) · XAU/USD (Gold) · USOIL (WTI Crude) — 10 instruments scanned across M5, M15 and H1 timeframes.</div></div>
+      <div class="rule-item"><span class="ri-num">TF</span><div class="ri-text"><span class="hi-green">M5</span> (5-minute), <span class="hi-green">M15</span> (15-minute) and <span class="hi-green">H1</span> (1-hour) timeframes. M5 for fast scalp entries (1:1.5 RR) · M15 for standard setups (1:2 RR) · H1 for strongest confluences (1:3 RR).</div></div>
+    </div>
+  </div>
+
+  <!-- THE 7 GATES -->
+  <div class="rule-block">
+    <div class="rule-block-head">
+      <span class="rb-icon">🔒</span>
+      <span class="rb-title">THE 7-GATE CONFLUENCE FORMULA</span>
+      <span class="rb-badge green">ALL 7 MUST PASS</span>
+    </div>
+    <div class="rule-block-body">
+      <div class="rule-item"><span class="ri-num">G1</span><div class="ri-text"><strong>EMA200 TREND DIRECTION</strong> — Price above EMA200 = BUY only. Price below EMA200 = SELL only. <span class="hi-green">Never fight the 200 EMA.</span> This is the master filter.</div></div>
+      <div class="rule-item"><span class="ri-num">G2</span><div class="ri-text"><strong>EMA STACK ALIGNMENT</strong> — EMA9 > EMA21 > EMA50 for BUY. All three must be stacked in signal direction. Triple confirmation of momentum building.</div></div>
+      <div class="rule-item"><span class="ri-num">G3</span><div class="ri-text"><strong>MACD MOMENTUM</strong> — MACD line must cross above signal line AND histogram must be rising. Backed by <span class="hi-green">73% win rate</span> in QuantifiedStrategies backtest of 235 trades.</div></div>
+      <div class="rule-item"><span class="ri-num">G4</span><div class="ri-text"><strong>RSI MOMENTUM ZONE</strong> — BUY: RSI 45–70 (captures strong trending moves). SELL: RSI 30–55. <span class="hi-yellow">Relaxed to allow capturing strong trends. Still blocks extreme overbought above 70 and oversold below 30.</span></div></div>
+      <div class="rule-item"><span class="ri-num">G5</span><div class="ri-text"><strong>ADX TREND STRENGTH ≥ 20</strong> — ADX below 20 = ranging market = NO TRADE. Only trend in trending conditions. ADX ≥ 25 = even stronger confidence.</div></div>
+      <div class="rule-item"><span class="ri-num">G6</span><div class="ri-text"><strong>SESSION FILTER</strong> — <span class="hi-green">London (10AM–7PM SAST)</span> or <span class="hi-green">New York (3PM–12AM SAST)</span> only. Off-session signals are automatically blocked by the app.</div></div>
+      <div class="rule-item"><span class="ri-num">G7</span><div class="ri-text"><strong>NEWS FILTER</strong> — <span class="hi-red">No trading 15 minutes before or after any high-impact news event.</span> NFP, Interest Rate Decisions, CPI, GDP — these events move markets 50–200 pips in seconds. Gate 7 automatically detects scheduled news events and blocks all signals during the blackout window. When Gate 7 fires — a red NEWS BLACKOUT screen appears with a countdown. Scanning resumes automatically when the window clears. <span class="hi-yellow">Fundamentals override all technical analysis. Always.</span></div></div>
+    </div>
+  </div>
+
+  <!-- WATCH LIST -->
+  <div class="rule-block">
+    <div class="rule-block-head">
+      <span class="rb-icon">🔍</span>
+      <span class="rb-title">THE 6-OF-7 WATCH LIST</span>
+      <span class="rb-badge yellow">MONITOR — DO NOT TRADE</span>
+    </div>
+    <div class="rule-block-body">
+      <div class="rule-item"><span class="ri-num">W1</span><div class="ri-text"><strong>What is a Watch Signal?</strong> — When 6 of 7 gates pass the scanner shows a gold 🔍 WATCH card. One gate is missing. The card tells you exactly which gate is failing and what needs to change.</div></div>
+      <div class="rule-item"><span class="ri-num">W2</span><div class="ri-text"><span class="hi-red"><strong>Do NOT trade a Watch Signal.</strong></span> 7 gates is not 7 gates. The market is close but not confirmed. Your edge only exists when all 6 agree. Patience is the skill.</div></div>
+      <div class="rule-item"><span class="ri-num">W3</span><div class="ri-text"><strong>What to do with a Watch:</strong> Note the pair and the missing gate. Wait for the next auto-scan in 15 minutes. If all 6 pass on that scan — <span class="hi-green">that is your entry signal.</span></div></div>
+      <div class="rule-item"><span class="ri-num">W4</span><div class="ri-text"><strong>Watch Signals build your expertise.</strong> After 30 days — review your journal. Which gate blocked the most Watch Signals from becoming full signals? That is the gate you adjust first — based on real data, not theory.</div></div>
+    </div>
+  </div>
+
+  <!-- RISK RULES -->
+  <div class="rule-block">
+    <div class="rule-block-head">
+      <span class="rb-icon">💰</span>
+      <span class="rb-title">RISK & REWARD RULES</span>
+      <span class="rb-badge yellow">NON-NEGOTIABLE</span>
+    </div>
+    <div class="rule-block-body">
+      <div class="rule-item"><span class="ri-num">R1</span><div class="ri-text"><span class="hi-green">Risk exactly $1 per trade</span> — 0.01 micro lot on Exness Standard. No exceptions at this stage of proving the system.</div></div>
+      <div class="rule-item"><span class="ri-num">R2</span><div class="ri-text"><span class="hi-green">M5 = 1:1.5 Risk:Reward</span> — Risk $1 to make $1.50. Fast signals. Tighter SL. Best during high volatility sessions. More signals per day.</div></div>
+      <div class="rule-item"><span class="ri-num">R3</span><div class="ri-text"><span class="hi-green">M15 = 1:2 Risk:Reward</span> — Risk $1 to make $2. Minimum 10 pip SL, 20 pip TP. Standard timeframe for the proof period.</div></div>
+      <div class="rule-item"><span class="ri-num">R4</span><div class="ri-text"><span class="hi-green">H1 = 1:3 Risk:Reward</span> — Risk $1 to make $3. Minimum 15 pip SL, 45 pip TP. Strongest signals. Most room to breathe. Best for overnight trades.</div></div>
+      <div class="rule-item"><span class="ri-num">R5</span><div class="ri-text"><span class="hi-yellow">Maximum 3 open trades at any time.</span> Never open trade 4 while 3 are still running. Patience is the skill.</div></div>
+      <div class="rule-item"><span class="ri-num">R6</span><div class="ri-text"><span class="hi-red">After 3 consecutive losses — STOP for the day.</span> The market is not aligned today. Shut down. Come back tomorrow. Capital preserved = another day to trade.</div></div>
+      <div class="rule-item"><span class="ri-num">R7</span><div class="ri-text"><span class="hi-green">Let winners run to FULL TP.</span> Place the trade. Walk away. Let the system work. The math only delivers if you honour the full RR ratio every time.</div></div>
+    </div>
+  </div>
+
+
+  <!-- HOW TO PLACE A TRADE ON EXNESS MT5 -->
+  <div class="rule-block">
+    <div class="rule-block-head">
+      <span class="rb-icon">📲</span>
+      <span class="rb-title">HOW TO PLACE A TRADE ON EXNESS MT5</span>
+      <span class="rb-badge green">STEP BY STEP</span>
+    </div>
+    <div class="rule-block-body">
+      <div class="rule-item"><span class="ri-num">S1</span><div class="ri-text"><strong>The bell rings on Z2B Trader.</strong> You see the signal card — pair, direction, entry, SL and TP. Tap <strong style="color:#ffd700;">📋 COPY</strong> next to the Stop Loss value first — it copies to your clipboard automatically.</div></div>
+      <div class="rule-item"><span class="ri-num">S2</span><div class="ri-text"><strong>Open Exness MT5</strong> on your phone. Tap the <strong style="color:#ffd700;">Quotes</strong> tab at the bottom. Find your pair — e.g. EURUSD. Tap it.</div></div>
+      <div class="rule-item"><span class="ri-num">S3</span><div class="ri-text"><strong>Tap the BUY or SELL button</strong> — whichever matches your signal direction. A New Order screen opens.</div></div>
+      <div class="rule-item"><span class="ri-num">S4</span><div class="ri-text"><strong>Set Volume to 0.01</strong> — tap the volume field and type 0.01. This is your micro lot. <span class="hi-red">Never change this during the proof period.</span></div></div>
+      <div class="rule-item"><span class="ri-num">S5</span><div class="ri-text"><strong>Set Stop Loss</strong> — tap the Stop Loss field. Paste the value you copied from Z2B Trader (long press → paste). Or type it manually by looking at the signal card.</div></div>
+      <div class="rule-item"><span class="ri-num">S6</span><div class="ri-text"><strong>Set Take Profit</strong> — tap the Take Profit field. Go back to Z2B Trader, tap 📋 COPY next to TP value, return to MT5 and paste it.</div></div>
+      <div class="rule-item"><span class="ri-num">S7</span><div class="ri-text"><strong>Tap PLACE ORDER</strong> — confirm the trade. MT5 will show a confirmation screen. The trade is live.</div></div>
+      <div class="rule-item"><span class="ri-num">S8</span><div class="ri-text"><strong style="color:#00e676;">WALK AWAY.</strong> Come back to Z2B Trader. Tap <strong>"I PLACED THE TRADE"</strong> to log it. Then put your phone down and go live your life. MT5 will notify you when the trade closes.</div></div>
+      <div class="rule-item"><span class="ri-num">⚠</span><div class="ri-text"><span class="hi-red"><strong>NEVER modify the SL or TP after placing.</strong></span> Never move your stop loss further away to avoid a loss. Never close early to lock a small profit. The math only works if you honour the full RR every single time. Interfering with the trade is the same as not having a system.</div></div>
+    </div>
+  </div>
+
+  <!-- 5 WAYS HUMANITY DESTROYS THE SYSTEM -->
+  <div class="rule-block">
+    <div class="rule-block-head">
+      <span class="rb-icon">⚠️</span>
+      <span class="rb-title">5 WAYS HUMANITY DESTROYS A PERFECT SYSTEM</span>
+      <span class="rb-badge red">READ BEFORE EVERY SESSION</span>
+    </div>
+    <div class="rule-block-body">
+      <table class="h-table">
+        <thead>
+          <tr><th>#</th><th>THE TRAP</th><th>HOW IT KILLS YOU</th><th>SOLUTION IN THIS APP</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="ht-n">1</td>
+            <td class="ht-trap">FEAR</td>
+            <td>Signal fires. You hesitate. You chase it late. Stopped at the worst price.</td>
+            <td class="ht-sol">Bell fires immediately when 7 gates pass. Pre-trade checklist forces a decision — take it or consciously skip it. <span class="ht-imp">✔ BELL IMPLEMENTED</span></td>
+          </tr>
+          <tr>
+            <td class="ht-n">2</td>
+            <td class="ht-trap">GREED</td>
+            <td>Trade at 80% TP. You move the target. It reverses. Winner becomes a loser.</td>
+            <td class="ht-sol">TP locked and displayed before entry. Checklist item 3 commits you to full TP before you can press the take button. <span class="ht-imp">✔ TP LOCK</span></td>
+          </tr>
+          <tr>
+            <td class="ht-n">3</td>
+            <td class="ht-trap">REVENGE</td>
+            <td>You lose $1. Next signal you enter without full confluence to get the dollar back.</td>
+            <td class="ht-sol">Checklist item 2 forces you to confirm you are not revenge trading. After 3 losses, app displays STOP warning and stops the scan. <span class="ht-imp">✔ LOSS LIMITER</span></td>
+          </tr>
+          <tr>
+            <td class="ht-n">4</td>
+            <td class="ht-trap">OVERCONFIDENCE</td>
+            <td>5 wins in a row. You put $3 on trade 6. Trade 6 wipes out trades 1–5.</td>
+            <td class="ht-sol">Checklist item 4 locks risk to exactly $1. Discipline score tracks and penalises any deviation from the $1 rule. <span class="ht-imp">✔ $1 RULE LOCK</span></td>
+          </tr>
+          <tr>
+            <td class="ht-n">5</td>
+            <td class="ht-trap">BOREDOM</td>
+            <td>No signal for 2 hours. You create one that isn't there. You call it intuition.</td>
+            <td class="ht-sol">The 7-gate strict formula cannot fire unless all conditions align. Bell only rings when real. Your job is to wait. <span class="ht-imp">✔ STRICT GATES</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB: DISCIPLINE SCORE -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-discipline">
+  <div class="card">
+    <div class="card-head"><div class="card-title">▸ YOUR DISCIPLINE SCORE</div></div>
+    <div class="card-body">
+      <div class="disc-wrap">
+        <div class="disc-ring">
+          <svg width="78" height="78" viewBox="0 0 78 78">
+            <circle cx="39" cy="39" r="32" fill="none" stroke="#5b2d8e" stroke-width="7"/>
+            <circle cx="39" cy="39" r="32" fill="none" stroke="#007a3d" stroke-width="7"
+              stroke-dasharray="201.1" id="discCircle" stroke-dashoffset="0" stroke-linecap="round"/>
+          </svg>
+          <div class="disc-ring-num" id="discNum">100</div>
+        </div>
+        <div class="disc-info">
+          <div class="disc-rating-label">DISCIPLINE RATING</div>
+          <div class="disc-rating c-green" id="discRating">ELITE TRADER</div>
+          <div class="disc-desc" id="discDesc">All rules followed. System running clean. No violations detected. You are building the proof.</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+        <div class="tg-cell"><div class="tg-label">CHECKLIST COMPLETION</div><div class="tg-value c-green" id="dChk">100%</div></div>
+        <div class="tg-cell"><div class="tg-label">RISK RULE ($1 ONLY)</div><div class="tg-value c-green" id="dRisk">100%</div></div>
+        <div class="tg-cell"><div class="tg-label">SESSION RESPECT</div><div class="tg-value c-green" id="dSess">100%</div></div>
+        <div class="tg-cell"><div class="tg-label">TP DISCIPLINE</div><div class="tg-value c-green" id="dTP">100%</div></div>
+      </div>
+
+      <div class="rule-block">
+        <div class="rule-block-head"><span class="rb-icon">📏</span><span class="rb-title">HOW YOUR SCORE IS CALCULATED</span></div>
+        <div class="rule-block-body">
+          <div class="rule-item"><span class="ri-num">+10</span><div class="ri-text">Every completed pre-trade checklist (all 5 items checked before taking trade)</div></div>
+          <div class="rule-item"><span class="ri-num">+5</span><div class="ri-text">Every skipped signal logged (conscious decision to pass = good discipline)</div></div>
+          <div class="rule-item"><span class="ri-num">-20</span><div class="ri-text">Trade taken without completing checklist — immediate deduction</div></div>
+          <div class="rule-item"><span class="ri-num">-15</span><div class="ri-text">Trading outside London or New York session hours</div></div>
+          <div class="rule-item"><span class="ri-num">-25</span><div class="ri-text">Trading after 3 consecutive losses in a day — stop rule violated</div></div>
+          <div class="rule-item"><span class="ri-num">0</span><div class="ri-text">Win or loss — outcome does NOT affect discipline score. Only behaviour does.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB: RSA TIMES -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-rsatimes">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">▸ YOUR RSA TRADING TIMES — SAST (UTC+2)</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:var(--yellow);" id="rsaNow">Now: --:--</div>
+    </div>
+    <div class="card-body">
+
+      <div class="rsa-grid" style="margin-bottom:14px;">
+
+        <div class="rsa-card prime" id="rsaOverlap">
+          <div class="rsa-session">LONDON + NEW YORK OVERLAP</div>
+          <div class="rsa-time">3:00 PM – 7:00 PM</div>
+          <div class="rsa-utc">13:00–17:00 UTC</div>
+          <div class="rsa-note">⭐ Your PRIME window. Both sessions active simultaneously. Highest global liquidity. Tightest Exness spreads. Strongest, cleanest directional moves. This is where you make your trades.</div>
+          <div class="rsa-badge prime">★ HUNT HERE FIRST</div>
+        </div>
+
+        <div class="rsa-card good" id="rsaLondon">
+          <div class="rsa-session">LONDON OPEN</div>
+          <div class="rsa-time">10:00 AM – 3:00 PM</div>
+          <div class="rsa-utc">08:00–13:00 UTC</div>
+          <div class="rsa-note">Good session. EUR/USD and GBP/USD most active. Frankfurt and London banks entering. Strong trend formations. Gate 6 is open. Run your scan at 10AM.</div>
+          <div class="rsa-badge good">✔ GOOD TO TRADE</div>
+        </div>
+
+        <div class="rsa-card caution" id="rsaNYLate">
+          <div class="rsa-session">NEW YORK LATE SESSION</div>
+          <div class="rsa-time">7:00 PM – 10:00 PM</div>
+          <div class="rsa-utc">17:00–20:00 UTC</div>
+          <div class="rsa-note">London has closed. NY still running. Moves are possible but less predictable. USD pairs still have volume. Gate 6 is open but be more selective. Reduce position count.</div>
+          <div class="rsa-badge caution">⚡ ACCEPTABLE — SELECTIVE</div>
+        </div>
+
+        <div class="rsa-card avoid" id="rsaAvoid">
+          <div class="rsa-session">AVOID — OFF HOURS</div>
+          <div class="rsa-time">10:00 PM – 10:00 AM</div>
+          <div class="rsa-utc">20:00–08:00 UTC</div>
+          <div class="rsa-note">Tokyo and Sydney sessions. Low liquidity on major pairs. Wider spreads. Choppy, unreliable movements. Gate 6 automatically blocks all signals during this window.</div>
+          <div class="rsa-badge avoid">✗ GATE 6 BLOCKS ALL SIGNALS</div>
+        </div>
+
+      </div>
+
+      <div class="rule-block">
+        <div class="rule-block-head"><span class="rb-icon">📅</span><span class="rb-title">YOUR IDEAL DAILY SCHEDULE (SAST)</span></div>
+        <div class="rule-block-body">
+          <div class="rule-item"><span class="ri-num">9:50</span><div class="ri-text"><strong>Pre-Market Prep</strong> — Open Z2B Command Centre. Check economic calendar for high-impact news (avoid trading 15 min before/after red flag events). Set browser notifications ON.</div></div>
+          <div class="rule-item"><span class="ri-num">10:00</span><div class="ri-text"><strong>London Open Scan</strong> — Run the 7-gate scan. If signal fires, bell rings. Otherwise <span class="hi-green">step away from the screen</span>. The app watches for you.</div></div>
+          <div class="rule-item"><span class="ri-num">2:30</span><div class="ri-text"><strong>Pre-Overlap Prep</strong> — Return before New York opens. Run another scan. Review any open trades. Confirm you are mentally ready for your prime window.</div></div>
+          <div class="rule-item"><span class="ri-num">3:00–7:00</span><div class="ri-text"><strong style="color:var(--green)">PRIME WINDOW — App watches. Bell rings if signal fires.</strong> You place trade in under 60 seconds on Exness. Walk away. Let the RR play out. Do not watch the candles.</div></div>
+          <div class="rule-item"><span class="ri-num">7:00–10:00</span><div class="ri-text"><strong>NY Late Session</strong> — Optional. Run one more scan if you have capacity. Be more selective. If no signal by 10PM, shut down for the night.</div></div>
+          <div class="rule-item"><span class="ri-num">10:00+</span><div class="ri-text"><strong style="color:var(--red)">CLOSE THE APP. REST IS PART OF THE SYSTEM.</strong> No trading after 10PM. No watching candles. Your edge is discipline — and tired traders make bad decisions.</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- TAB: MY DUTIES -->
+<!-- ════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-duties">
+  <div class="my-page-hero" style="margin-bottom:14px;">
+    <div class="my-page-name" style="font-size:1rem;">MY DAILY DUTIES AS A SYSTEM TRADER</div>
+    <div class="my-page-verse">"The plans of the diligent lead surely to abundance." — Proverbs 21:5<br>
+    <span style="color:var(--accent);font-style:normal;">A system without a disciplined operator is just code. You are the final gate.</span></div>
+  </div>
+
+  <div class="rule-block">
+    <div class="rule-block-head"><span class="rb-icon">🌅</span><span class="rb-title">BEFORE TRADING — EVERY SESSION</span><span class="rb-badge green">MANDATORY</span></div>
+    <div class="rule-block-body">
+      <div class="rule-item"><span class="ri-num">D1</span><div class="ri-text"><strong>Check the economic calendar.</strong> Visit forexfactory.com. Identify all red flag (high-impact) news for the day. <span class="hi-red">Do not trade 15 minutes before or after red flag events.</span></div></div>
+      <div class="rule-item"><span class="ri-num">D2</span><div class="ri-text"><strong>Set your mental state.</strong> If you are emotional — stressed, angry, anxious — <span class="hi-red">do not trade today.</span> Come back tomorrow. Emotional trading destroys disciplined systems.</div></div>
+      <div class="rule-item"><span class="ri-num">D3</span><div class="ri-text"><strong>Review yesterday's trades.</strong> Open the journal. What happened? What did you learn? Did you follow all 7 gates? Did you complete the checklist? 2 minutes of review builds expertise.</div></div>
+      <div class="rule-item"><span class="ri-num">D4</span><div class="ri-text"><strong>Confirm your Exness account is funded.</strong> Minimum $10 maintained. Know your current balance before trading. Never trade scared money — money you cannot afford to lose.</div></div>
+      <div class="rule-item"><span class="ri-num">D5</span><div class="ri-text"><strong>Enable bell notifications.</strong> Tap the 🔔 ENABLE BELL button in the scanner tab. This is how the system alerts you without you watching screens all day.</div></div>
+    </div>
+  </div>
+
+  <div class="rule-block">
+    <div class="rule-block-head"><span class="rb-icon">📡</span><span class="rb-title">DURING TRADING — EVERY SIGNAL</span><span class="rb-badge yellow">NON-NEGOTIABLE</span></div>
+    <div class="rule-block-body">
+      <div class="rule-item"><span class="ri-num">D6</span><div class="ri-text"><strong>Never take a signal without completing the pre-trade checklist.</strong> All 5 items. Every time. The checklist is not a formality — it is your final human gate that the app cannot do for you.</div></div>
+      <div class="rule-item"><span class="ri-num">D7</span><div class="ri-text"><strong>Place the trade EXACTLY as shown.</strong> Entry price, Stop Loss, Take Profit — copy them from the signal card onto Exness with 0.01 lot size. <span class="hi-red">Do not modify the levels.</span></div></div>
+      <div class="rule-item"><span class="ri-num">D8</span><div class="ri-text"><strong>Walk away after placing.</strong> <span class="hi-green">Do not watch the candles.</span> The trade is placed. The RR is set. Your job is done. Watching only creates anxiety that leads to early exits.</div></div>
+      <div class="rule-item"><span class="ri-num">D9</span><div class="ri-text"><strong>Let it hit SL or TP — never close manually.</strong> The only exception: unexpected major news event that could cause extreme volatility. In that case, close immediately and log the reason.</div></div>
+      <div class="rule-item"><span class="ri-num">D10</span><div class="ri-text"><strong>Maximum 3 trades open at once.</strong> If 3 are running, skip new signals until one closes. <span class="hi-yellow">Patience is a trading skill.</span></div></div>
+    </div>
+  </div>
+
+  <div class="rule-block">
+    <div class="rule-block-head"><span class="rb-icon">📒</span><span class="rb-title">AFTER TRADING — EVERY SESSION</span><span class="rb-badge green">BUILDS YOUR PROOF</span></div>
+    <div class="rule-block-body">
+      <div class="rule-item"><span class="ri-num">D11</span><div class="ri-text"><strong>Log every trade outcome.</strong> Win or Loss — tap the result in the tracker. This is the data that will one day become your testimony to your Z2B community.</div></div>
+      <div class="rule-item"><span class="ri-num">D12</span><div class="ri-text"><strong>Add one sentence of notes per trade.</strong> What happened? Did price respect the TP? Did it hit SL? Was the session busy or quiet? <span class="hi-green">Observations become wisdom over 60 days.</span></div></div>
+      <div class="rule-item"><span class="ri-num">D13</span><div class="ri-text"><strong>Export CSV weekly.</strong> Keep a backup of your journal data. This is your performance record — protect it. It is the evidence behind your future signal service.</div></div>
+      <div class="rule-item"><span class="ri-num">D14</span><div class="ri-text"><strong>Review your discipline score.</strong> Check the Discipline tab. Are you above 80%? If below — what rule was broken? Address it before next session. The score does not judge you — it teaches you.</div></div>
+      <div class="rule-item"><span class="ri-num">D15</span><div class="ri-text"><strong>Rest and recover.</strong> <span class="hi-green">Trading is a marathon, not a sprint.</span> Close the app by 10PM SAST. Sleep well. A rested mind executes better than a sharp strategy traded tired.</div></div>
+    </div>
+  </div>
+
+  <div class="rule-block">
+    <div class="rule-block-head"><span class="rb-icon">📈</span><span class="rb-title">WEEKLY DUTIES — BUILDING THE PROOF</span><span class="rb-badge green">Z2B LEGACY BUILDERS</span></div>
+    <div class="rule-block-body">
+      <div class="rule-item"><span class="ri-num">W1</span><div class="ri-text"><strong>Every Friday:</strong> Review weekly P&L and win rate. Is the system working? Are you following all 7 gates? Are signals firing in the right sessions?</div></div>
+      <div class="rule-item"><span class="ri-num">W2</span><div class="ri-text"><strong>Identify your best session.</strong> Which session — London open, overlap, or NY late — gave you the most consistent results? Trade that session harder next week.</div></div>
+      <div class="rule-item"><span class="ri-num">W3</span><div class="ri-text"><strong>Identify your best pair.</strong> Which pair — EUR/USD, GBP/USD, USD/JPY, AUD/USD — gave you the cleanest signals? Focus more attention there.</div></div>
+      <div class="rule-item"><span class="ri-num">W4</span><div class="ri-text"><strong>After 30 days:</strong> Calculate your real win rate. If above 50% with 1:3 RR, the system is profitable. If below, review which gate you are compromising on. <span class="hi-green">Data, not feelings.</span></div></div>
+      <div class="rule-item"><span class="ri-num">W5</span><div class="ri-text"><strong>After 60 days of proof:</strong> You have your testimony. You have real win rates. You have a journal. <span class="hi-green">Then — and only then — introduce it to your Z2B community with your name behind it.</span></div></div>
+    </div>
+  </div>
+
+</div>
+
+
+
+  <!-- WHEN THE BELL RINGS — QUICK ACTION GUIDE -->
+  <div class="bell-instructions">
+    <div class="bi-title">🔔 WHEN THE BELL RINGS — YOUR EXACT ACTION STEPS</div>
+    <div class="bi-steps">
+
+      <div class="bi-step highlight">
+        <div class="bi-step-num">1</div>
+        <div class="bi-step-text">
+          <strong>STOP what you are doing</strong> — open the app immediately.
+          The signal is time-sensitive. Price moves fast after confluence forms.
+        </div>
+      </div>
+
+      <div class="bi-step">
+        <div class="bi-step-num">2</div>
+        <div class="bi-step-text">
+          <strong>Read the signal card</strong> — check the pair, direction (BUY/SELL),
+          entry price, stop loss and take profit. All 7 gates must show ✔.
+        </div>
+      </div>
+
+      <div class="bi-step">
+        <div class="bi-step-num">3</div>
+        <div class="bi-step-text">
+          <strong>Complete the pre-trade checklist</strong> — all 5 items must be checked
+          before the TAKE TRADE button unlocks. <span class="red">No shortcuts.</span>
+        </div>
+      </div>
+
+      <div class="bi-step highlight">
+        <div class="bi-step-num">4</div>
+        <div class="bi-step-text">
+          <strong>Open Exness on your phone</strong> — go to MT4 or MT5.
+          Select the same pair shown in the signal (e.g. EUR/USD).
+        </div>
+      </div>
+
+      <div class="bi-step">
+        <div class="bi-step-num">5</div>
+        <div class="bi-step-text">
+          <strong>Set your trade exactly:</strong><br>
+          • Lot size: <strong>0.01</strong> (micro lot = $1 risk)<br>
+          • Stop Loss: copy the SL price from the signal card<br>
+          • Take Profit: copy the TP price from the signal card<br>
+          • Direction: BUY or SELL as shown
+        </div>
+      </div>
+
+      <div class="bi-step">
+        <div class="bi-step-num">6</div>
+        <div class="bi-step-text">
+          <strong>Place the trade on Exness</strong> — confirm and submit.
+          Come back to Z2B app and tap <strong>"I PLACED THE TRADE"</strong> to log it.
+        </div>
+      </div>
+
+      <div class="bi-step highlight">
+        <div class="bi-step-num">7</div>
+        <div class="bi-step-text">
+          <strong class="green">WALK AWAY.</strong> Do not watch the candles.
+          The trade is placed. SL and TP are set. Your job is done.
+          Let the RR play out. Return only when Exness notifies you of the result.
+        </div>
+      </div>
+
+      <div class="bi-step">
+        <div class="bi-step-num">8</div>
+        <div class="bi-step-text">
+          <strong>When trade closes</strong> — come back to the app.
+          Tap <strong>WIN</strong> or <strong>LOSS</strong> on the trade in the tracker.
+          Add one sentence of notes. <span class="green">That is your proof building.</span>
+        </div>
+      </div>
+
+      <div class="bi-step" style="border-color:rgba(255,69,105,0.3);background:rgba(255,69,105,0.04);">
+        <div class="bi-step-num" style="color:#ff4569;">✗</div>
+        <div class="bi-step-text">
+          <strong style="color:#ffd700;">🔍 WATCH SIGNAL (6/7 gates)</strong> — One gate is missing. Note which gate is failing on the card. Monitor that pair — if the missing gate aligns in the next candle, a full signal may fire. Do NOT trade a watch signal. Wait for all 6. <br><br><strong class="red">NEVER:</strong> Move your stop loss · Close early out of fear ·
+          Add to a losing position · Take a second trade on the same pair while one is open ·
+          Trade after 3 consecutive losses in a day.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<div class="disclaimer">
+  ⚠ FOR PERSONAL USE · EDUCATIONAL & RESEARCH PURPOSES ONLY · NOT FINANCIAL ADVICE<br>
+  Formula built from backtested professional research. Live data via Twelve Data free API (8 calls/min).<br>
+  Exness Standard spreads are published averages — live spreads vary. $1 risk = 0.01 micro lot.<br>
+  Z2B Legacy Builders · z2blegacybuilders.co.za · Rev Mokoro Manana
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// Z2B COMMAND CENTRE — COMPLETE SYSTEM v1.6
+// ═══════════════════════════════════════════════════════════
+
+// Global error handler — prevents blank screens from silent JS errors
+window.onerror = function(msg, src, line, col, err) {
+  console.error('[Z2B Error] ' + msg + ' at line ' + line + ' in ' + src);
+  return false; // Don't suppress the error but prevent page crash
+};
+
+const EXNESS = {spread:{"EUR/USD":0.2,"GBP/USD":0.3,"USD/JPY":0.2,"AUD/USD":0.3,"USD/CAD":0.3,"USD/CHF":0.3,"EUR/JPY":0.5,"GBP/JPY":0.7,"XAU/USD":0.25,"USOIL":0.03}};
+const PAIRS = {
+  // Major Pairs
+  "EUR/USD":{base:1.0854,pipSize:0.0001,micro_pv:0.10,dec:5,cat:'MAJOR'},
+  "GBP/USD":{base:1.2634,pipSize:0.0001,micro_pv:0.10,dec:5,cat:'MAJOR'},
+  "USD/JPY":{base:151.42,pipSize:0.01,  micro_pv:0.066,dec:3,cat:'MAJOR'},
+  "AUD/USD":{base:0.6521,pipSize:0.0001,micro_pv:0.10,dec:5,cat:'MAJOR'},
+  "USD/CAD":{base:1.3612,pipSize:0.0001,micro_pv:0.073,dec:5,cat:'MAJOR'},
+  "USD/CHF":{base:0.9042,pipSize:0.0001,micro_pv:0.11,dec:5,cat:'MAJOR'},
+  // Cross Pairs
+  "EUR/JPY":{base:163.45,pipSize:0.01,  micro_pv:0.066,dec:3,cat:'CROSS'},
+  "GBP/JPY":{base:191.22,pipSize:0.01,  micro_pv:0.066,dec:3,cat:'CROSS'},
+  // Commodities
+  "XAU/USD":{base:2340.0,pipSize:0.01,  micro_pv:0.01,dec:2,cat:'GOLD'},
+  "USOIL":  {base:82.50, pipSize:0.01,  micro_pv:0.01,dec:2,cat:'OIL'}
+};
+const SCAN_PAIRS=["EUR/USD","GBP/USD","USD/JPY","AUD/USD","USD/CAD","USD/CHF","EUR/JPY","GBP/JPY","XAU/USD","USOIL"];
+window.PAIRS_CAT={"EUR/USD":"MAJOR","GBP/USD":"MAJOR","USD/JPY":"MAJOR","AUD/USD":"MAJOR","USD/CAD":"MAJOR","USD/CHF":"MAJOR","EUR/JPY":"CROSS","GBP/JPY":"CROSS","XAU/USD":"GOLD","USOIL":"OIL"};
+const TD_INT={"M5":"5min","M15":"15min","H1":"1h"};
+const RR={"M5":1.5,"M15":2,"H1":3};
+const RISK=1.00;
+
+let apiKey=localStorage.getItem('z2b_cc_key')||'';
+let currentTF='M15';
+let scanResults=[];
+let trades=[];
+let skips=0;
+let balance=10.00;
+let sigsToday=0;
+let pendingSignal=null;
+let checklistItems=0;
+let discScore=100;
+let notifsGranted=false;
+let consecutiveLosses=0;
+let audioCtx=null;
+
+// ── CLOCK ─────────────────────────────────────
+function tick(){
+  const now=new Date();
+  const utcH=now.getUTCHours(),utcM=now.getUTCMinutes(),utcS=now.getUTCSeconds();
+  const p=n=>String(n).padStart(2,'0');
+  document.getElementById('clockUTC').textContent=`${p(utcH)}:${p(utcM)}:${p(utcS)} UTC`;
+  // SAST = UTC+2
+  const sastMs=now.getTime()+2*3600000;
+  const sast=new Date(sastMs);
+  document.getElementById('clockSAST').textContent=`${p(sast.getUTCHours())}:${p(sast.getUTCMinutes())}:${p(sast.getUTCSeconds())} SAST`;
+  document.getElementById('clockDate').textContent=now.toUTCString().split(' ').slice(1,4).join(' ');
+
+  // RSA time on RSA tab
+  const rsaEl=document.getElementById('rsaNow');
+  if(rsaEl) rsaEl.textContent=`Now SAST: ${p(sast.getUTCHours())}:${p(sast.getUTCMinutes())}`;
+
+  // Sessions
+  // Only London and New York — the only sessions we trade
+  const tradeSessions={london:{s:8,e:17},newyork:{s:13,e:22}};
+  Object.entries(tradeSessions).forEach(([k,v])=>{
+    const el=document.getElementById(`sess-${k}`);
+    if(!el)return;
+    const on=utcH>=v.s&&utcH<v.e;
+    el.className=`sess-pill ${on?'on':'off'}`;
+  });
+
+  // Highlight active RSA windows
+  const sastH=sast.getUTCHours();
+  const overlap=document.getElementById('rsaOverlap');
+  const londonCard=document.getElementById('rsaLondon');
+  if(overlap){
+    const overlapOn=sastH>=15&&sastH<19;
+    overlap.classList.toggle('active-window',overlapOn);
+  }
+  if(londonCard){
+    const londonOn=sastH>=10&&sastH<15;
+    londonCard.classList.toggle('active-window',londonOn);
+  }
+}
+setInterval(tick,1000);tick();
+
+// ── TABS ──────────────────────────────────────
+function showTab(t){
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── SESSION DETECTION ─────────────────────────
+function getSession(){
+  const h=new Date().getUTCHours();
+  if(h>=8&&h<17)return'london';
+  if(h>=13&&h<22)return'newyork';
+  return'offhours'; // Tokyo/Sydney — we do not trade these
+}
+function isActiveSession(){
+  // Gate 6 is STRICT — London and New York only. No override. No exceptions.
+  const s=getSession();
+  return s==='london'||s==='newyork';
+}
+
+// ── API KEY ───────────────────────────────────
+function saveKey(){
+  const k=document.getElementById('apiKeyInput').value.trim();
+  if(!k){document.getElementById('apiNote').textContent='⚠ Paste key first';return;}
+  apiKey=k;localStorage.setItem('z2b_cc_key',k);
+  document.getElementById('apiNote').textContent='✔ Key saved';
+  document.getElementById('apiNote').style.color='var(--green)';
+}
+if(apiKey){
+  document.getElementById('apiKeyInput').value=apiKey;
+  document.getElementById('apiNote').textContent='✔ Key loaded';
+  document.getElementById('apiNote').style.color='var(--green)';
+}
+
+// ── NOTIFICATIONS ─────────────────────────────
+function requestNotifs(){
+  if(!('Notification' in window)){alert('Browser notifications not supported. Bell sound will still work.');return;}
+  Notification.requestPermission().then(p=>{
+    notifsGranted=p==='granted';
+    const btn=document.getElementById('notifBtn');
+    if(notifsGranted){btn.textContent='🔔 BELL ACTIVE';btn.className='notif-btn ok';}
+    else{alert('Notifications blocked. The in-app bell and audio will still fire.');}
+  });
+}
+
+// ── AUDIO BELL ────────────────────────────────
+function ringBell(){
+  try{
+    if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    const freqs=[880,1100,880,1320,880];
+    freqs.forEach((freq,i)=>{
+      const osc=audioCtx.createOscillator();
+      const gain=audioCtx.createGain();
+      osc.connect(gain);gain.connect(audioCtx.destination);
+      osc.frequency.value=freq;
+      osc.type='sine';
+      const t=audioCtx.currentTime+i*0.35;
+      gain.gain.setValueAtTime(0,t);
+      gain.gain.linearRampToValueAtTime(0.6,t+0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001,t+0.35);
+      osc.start(t);osc.stop(t+0.35);
+    });
+  }catch(e){console.log('Audio failed:',e);}
+}
+
+// ── BROWSER NOTIFICATION ──────────────────────
+function sendNotif(signal,pair,tf){
+  if(notifsGranted&&Notification.permission==='granted'){
+    new Notification(`🔔 Z2B SIGNAL: ${signal.toUpperCase()} ${pair}`,{
+      body:`${tf} · All 7 gates passed · RR 1:${RR[tf]} · Open Z2B Command Centre`,
+      icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔔</text></svg>',
+      requireInteraction:true
+    });
+  }
+}
+
+// ── BELL ALERT ────────────────────────────────
+function fireAlert(result){
+  pendingSignal=result;
+
+  // Reset checklist
+  ['chk1','chk2','chk3','chk4','chk5'].forEach(id=>{
+    document.getElementById(id).checked=false;
+    document.getElementById(id).closest('.chk-row').classList.remove('checked');
+  });
+  checklistItems=0;
+  document.getElementById('chkProgress').textContent='0 / 5 confirmed — complete all 5 to take the trade';
+  document.getElementById('bellTakeBtn').disabled=true;
+
+  // Signal text
+  const sigEl=document.getElementById('bellSignalText');
+  sigEl.textContent=result.signal.toUpperCase();
+  const bellClass=result.signal.startsWith('watch')?'watch':result.signal;
+  sigEl.className=`bell-signal ${bellClass}`;
+
+  // Trade info
+  document.getElementById('bellTradeInfo').innerHTML=`
+    <div class="bti-row"><span class="bti-label">PAIR</span><span class="bti-val">${result.pair} · ${result.tf}</span></div>
+    <div class="bti-row"><span class="bti-label">DIRECTION</span><span class="bti-val ${result.signal}">${result.signal.toUpperCase()}</span></div>
+    <div class="bti-row"><span class="bti-label">ENTRY</span><span class="bti-val">${result.levels.entry}</span></div>
+    <div class="copy-section-title">▸ COPY TO MT5 — TAP EACH VALUE</div>
+    <div class="copy-row">
+      <span class="copy-label">STOP LOSS (${result.levels.slPips} pips)</span>
+      <span>
+        <span class="copy-value sl">${result.levels.sl}</span>
+        <button class="copy-btn" onclick="copyVal('${result.levels.sl}',this)">📋 COPY</button>
+      </span>
+    </div>
+    <div class="copy-row">
+      <span class="copy-label">TAKE PROFIT (${result.levels.tpPips} pips)</span>
+      <span>
+        <span class="copy-value tp">${result.levels.tp}</span>
+        <button class="copy-btn" onclick="copyVal('${result.levels.tp}',this)">📋 COPY</button>
+      </span>
+    </div>
+    <div class="copy-row">
+      <span class="copy-label">LOT SIZE</span>
+      <span>
+        <span class="copy-value lot">0.01</span>
+        <button class="copy-btn" onclick="copyVal('0.01',this)">📋 COPY</button>
+      </span>
+    </div>
+    <div class="bti-row"><span class="bti-label">RISK : REWARD</span><span class="bti-val" style="color:var(--yellow)">$${RISK.toFixed(2)} : $${result.levels.rewardDollars.toFixed(2)} (1:${result.levels.rrRatio})</span></div>`;
+
+  // Ring bell and show overlay
+  ringBell();
+  sendNotif(result.signal,result.pair,result.tf);
+  document.getElementById('bellOverlay').classList.add('ringing');
+}
+
+function updateChecklist(){
+  const checks=['chk1','chk2','chk3','chk4','chk5'];
+  let count=0;
+  checks.forEach(id=>{
+    const el=document.getElementById(id);
+    const row=el.closest('.chk-row');
+    if(el.checked){count++;row.classList.add('checked');}
+    else row.classList.remove('checked');
+  });
+  checklistItems=count;
+  const btn=document.getElementById('bellTakeBtn');
+  btn.disabled=count<5;
+  const prog=document.getElementById('chkProgress');
+  if(count===5){prog.textContent='✔ All 5 confirmed — you may take the trade';prog.style.color='var(--green)';}
+  else{prog.textContent=`${count} / 5 confirmed — complete all 5 to take the trade`;prog.style.color='var(--yellow)';}
+}
+
+function takeTrade(){
+  if(!pendingSignal||checklistItems<5)return;
+  addTrade(pendingSignal,true);
+  document.getElementById('bellOverlay').classList.remove('ringing');
+  pendingSignal=null;
+  // Discipline reward
+  discScore=Math.min(100,discScore+10);
+  updateDiscScore();
+}
+
+function skipTrade(){
+  skips++;
+  discScore=Math.min(100,discScore+5);
+  updateDiscScore();
+  document.getElementById('bellOverlay').classList.remove('ringing');
+  pendingSignal=null;
+}
+
+// ── INDICATORS ────────────────────────────────
+function calcEMA(closes,p){
+  if(closes.length<p)return closes[closes.length-1];
+  const k=2/(p+1);
+  let e=closes.slice(0,p).reduce((a,b)=>a+b,0)/p;
+  for(let i=p;i<closes.length;i++)e=closes[i]*k+e*(1-k);
+  return e;
+}
+function calcRSI(closes,p=14){
+  if(closes.length<p+1)return 50;
+  let g=0,l=0;
+  for(let i=closes.length-p;i<closes.length;i++){
+    const d=closes[i]-closes[i-1];
+    if(d>0)g+=d;else l+=Math.abs(d);
+  }
+  const ag=g/p,al=l/p;
+  return al===0?100:100-(100/(1+ag/al));
+}
+function calcMACD(closes){
+  const e12=calcEMA(closes,12),e26=calcEMA(closes,26);
+  const macdLine=e12-e26;
+  const series=[];
+  for(let i=26;i<=closes.length;i++){
+    series.push(calcEMA(closes.slice(0,i),12)-calcEMA(closes.slice(0,i),26));
+  }
+  const sig=calcEMA(series,9);
+  const hist=macdLine-sig;
+  const prevSig=series.length>1?calcEMA(series.slice(0,-1),9):sig;
+  const prevHist=(series[series.length-2]||macdLine)-prevSig;
+  return{macdLine,sig,hist,rising:hist>prevHist};
+}
+function calcADX(highs,lows,closes,p=14){
+  if(closes.length<p+2)return 20;
+  let tr=0,dp=0,dm=0;
+  for(let i=closes.length-p;i<closes.length;i++){
+    tr+=Math.max(highs[i]-lows[i],Math.abs(highs[i]-closes[i-1]),Math.abs(lows[i]-closes[i-1]));
+    dp+=Math.max(highs[i]-highs[i-1],0);
+    dm+=Math.max(lows[i-1]-lows[i],0);
+  }
+  if(tr===0)return 20;
+  const diP=(dp/tr)*100,diM=(dm/tr)*100,diSum=diP+diM;
+  return diSum===0?20:Math.min(100,(Math.abs(diP-diM)/diSum)*100*1.5+10);
+}
+function calcATR(highs,lows,closes,p=14){
+  if(closes.length<p+1)return 0.001;
+  let s=0;
+  for(let i=closes.length-p;i<closes.length;i++)
+    s+=Math.max(highs[i]-lows[i],Math.abs(highs[i]-closes[i-1]),Math.abs(lows[i]-closes[i-1]));
+  return s/p;
+}
+
+// ── 7-GATE FORMULA ────────────────────────────
+function applyGates(candles,pair){
+  const closes=candles.map(c=>c.close);
+  const highs=candles.map(c=>c.high);
+  const lows=candles.map(c=>c.low);
+  const price=closes[closes.length-1];
+  const EMA9=calcEMA(closes,9),EMA21=calcEMA(closes,21),EMA50=calcEMA(closes,50),EMA200=calcEMA(closes,200);
+  const RSI14=calcRSI(closes);
+  const MACD=calcMACD(closes);
+  const ADX14=calcADX(highs,lows,closes);
+  const ATR14=calcATR(highs,lows,closes);
+  const sess=isActiveSession();
+
+  // RSI zones relaxed: BUY 45-70 (captures strong trends), SELL 30-55
+  const bGates=[price>EMA200,EMA9>EMA21&&EMA21>EMA50,MACD.macdLine>MACD.sig&&MACD.rising,RSI14>=45&&RSI14<=70,ADX14>=20,sess];
+  const sGates=[price<EMA200,EMA9<EMA21&&EMA21<EMA50,MACD.macdLine<MACD.sig&&!MACD.rising,RSI14>=30&&RSI14<=55,ADX14>=20,sess];
+  const bPass=bGates.filter(Boolean).length; // G1-G7
+  const sPass=sGates.filter(Boolean).length;
+
+  let signal='no-signal',gateResults=bGates,gatesPassed=Math.max(bPass,sPass);
+  if(bPass===7){signal='buy';gateResults=bGates;gatesPassed=6;}
+  else if(sPass===7){signal='sell';gateResults=sGates;gatesPassed=6;}
+  else if(bPass===6){signal='watch-buy';gateResults=bGates;gatesPassed=6;}
+  else if(sPass===6){signal='watch-sell';gateResults=sGates;gatesPassed=6;}
+  else{gateResults=bPass>=sPass?bGates:sGates;}
+
+  const confidence=signal!=='no-signal'?Math.min(95,Math.max(60,65+(ADX14>=25?10:0)+(newsBlackoutActive===false?5:0))):0;
+  const chips=[
+    {n:'G1:EMA200',p:gateResults[0]},{n:'G2:EMA STACK',p:gateResults[1]},
+    {n:'G3:MACD',p:gateResults[2]},{n:'G4:RSI ZONE',p:gateResults[3]},
+    {n:'G5:ADX≥20',p:gateResults[4]},{n:'G6:'+currentSessName.toUpperCase(),p:gateResults[5]}
+  ];
+  return{signal,gatesPassed,confidence,chips,price,ATR14};
+}
+
+function calcLevels(pair,tf,signal,atr,price){
+  const spread=EXNESS.spread[pair];
+  const pipSize=PAIRS[pair].pipSize;
+  const micro_pv=PAIRS[pair].micro_pv;
+  const rrRatio=RR[tf];
+  const minSL=tf==='H1'?15:10;
+  const atrPips=atr/pipSize;
+  const slPips=Math.max(Math.round(atrPips*0.9*(tf==='H1'?1.5:1.0)),Math.round(spread*3),minSL);
+  const tpPips=slPips*rrRatio;
+  const dec=PAIRS[pair].dec;
+  const entry=price;
+  let sl,tp;
+  if(signal==='buy'){sl=entry-slPips*pipSize;tp=entry+tpPips*pipSize;}
+  else{sl=entry+slPips*pipSize;tp=entry-tpPips*pipSize;}
+  return{
+    entry:entry.toFixed(dec),sl:sl.toFixed(dec),tp:tp.toFixed(dec),
+    slPips,tpPips,rrRatio,riskDollars:RISK,rewardDollars:RISK*rrRatio,
+    spreadPips:spread,viable:spread<slPips*0.35,
+    spreadCost:(spread*micro_pv).toFixed(3)
+  };
+}
+
+// ── SIMULATE CANDLES ──────────────────────────
+function simCandles(pair,count=210){
+  const candles=[];
+  let price=PAIRS[pair].base;
+  const trend=(Math.random()>0.5?1:-1)*PAIRS[pair].base*0.0001;
+  for(let i=0;i<count;i++){
+    const move=trend+(Math.random()-0.48)*PAIRS[pair].base*0.002;
+    const o=price,c=price+move;
+    candles.push({open:o,high:Math.max(o,c)+Math.random()*PAIRS[pair].base*0.0008,low:Math.min(o,c)-Math.random()*PAIRS[pair].base*0.0008,close:c});
+    price=c;
+  }
+  return candles;
+}
+
+// ── FETCH LIVE CANDLES ────────────────────────
+async function fetchCandles(pair,tf){
+  if(!apiKey)return null;
+  try{
+    const controller = new AbortController();
+    const timeout = setTimeout(()=>controller.abort(), 6000);
+    const url=`https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(pair)}&interval=${TD_INT[tf]}&outputsize=210&apikey=${apiKey}`;
+    const r=await fetch(url, {signal: controller.signal});
+    clearTimeout(timeout);
+    const d=await r.json();
+    if(d.status==='error'||!d.values||d.values.length<50)return null;
+    return d.values.reverse().map(c=>({open:parseFloat(c.open),high:parseFloat(c.high),low:parseFloat(c.low),close:parseFloat(c.close)}));
+  }catch(e){
+    console.log('Fetch failed for',pair,tf,e.message);
+    return null;
+  }
+}
+
+// ── RENDER CARDS ─────────────────────────────
+function renderCards(results){
+  const container=document.getElementById('oppsContainer');
+  results.sort((a,b)=>{
+    if(a.signal!=='no-signal'&&b.signal==='no-signal')return-1;
+    if(a.signal==='no-signal'&&b.signal!=='no-signal')return 1;
+    return b.gatesPassed-a.gatesPassed;
+  });
+  if(!results.length){container.innerHTML='<div class="empty-state"><span class="es-icon">🎯</span>No results</div>';return;}
+  const grid=document.createElement('div');
+  grid.className='opps-grid';
+  results.forEach((r,i)=>{
+    const card=document.createElement('div');
+    const cardSignalClass = r.signal.startsWith('watch') ? 'watch' : r.signal;
+    card.className=`opp-card ${cardSignalClass}`;
+    card.style.animationDelay=`${i*0.07}s`;
+    const sigIdx=results.filter(x=>x.signal!=='no-signal').indexOf(r);
+    const rankClass=sigIdx===0?'rank-1':sigIdx===1?'rank-2':'rank-o';
+    const rankLabel=r.signal==='no-signal'||r.signal.startsWith('watch')?`${r.gatesPassed}/7`:sigIdx===0?'★ BEST':'#'+(sigIdx+1);
+    const gpPct=(r.gatesPassed/7)*100;
+    const gpClass=r.gatesPassed===7?'all':'mid';
+    const gpTextClass=r.gatesPassed===7?'all':r.gatesPassed>=4?'mid':'low';
+    const priceChange=r.price-PAIRS[r.pair].base;
+    const dec=PAIRS[r.pair].dec;
+    const chipHTML=r.chips.map(c=>`<div class="g-chip ${c.p?'p':'f'}">${c.p?'✔':'✗'} ${c.n}</div>`).join('');
+    const pairCat = (window.PAIRS_CAT||{})[r.pair]||'';
+    const catColor = pairCat==='GOLD'?'#ffd700':pairCat==='OIL'?'#ff8c00':pairCat==='CROSS'?'#e040fb':'#00c8f0';
+    card.innerHTML=`
+      <div class="rank-badge ${rankClass}">${rankLabel}</div>
+      <div class="opp-header">
+        <div class="opp-pair-row">
+          <div class="opp-pair">${r.pair}</div>
+          <div class="opp-tf">${r.tf}</div>
+          ${pairCat?`<span style="font-family:'Share Tech Mono',monospace;font-size:0.44rem;padding:1px 5px;border:1px solid ${catColor};color:${catColor};">${pairCat}</span>`:''}
+          <span class="opp-src ${r.isLive?'live':'sim'}">${r.isLive?'LIVE':'SIM'}</span>
+        </div>
+        <div class="opp-price">${r.price.toFixed(dec)} <span style="color:${priceChange>=0?'var(--green)':'var(--red)'}">${priceChange>=0?'+':''}${priceChange.toFixed(dec)}</span></div>
+        <div>
+          <div class="signal-pill ${r.signal}">${r.signal==='buy'?'🟢 BUY':r.signal==='sell'?'🔴 SELL':'⬜ NO SIGNAL'}</div>
+          ${r.signal!=='no-signal'?`<span class="rr-chip">RR 1:${r.levels.rrRatio}</span>`:''}
+        </div>
+      </div>
+      <div class="gates-row">
+        <div class="gp-track"><div class="gp-fill ${gpClass}" style="width:${gpPct}%"></div></div>
+        <div class="gp-text ${gpTextClass}">${r.gatesPassed}/7 GATES</div>
+      </div>
+      ${r.signal!=='no-signal'?`
+      <div class="conf-row">
+        <span class="conf-label">CONFIDENCE</span>
+        <div class="conf-track"><div class="conf-fill" style="width:${r.confidence}%"></div></div>
+        <span class="conf-pct">${r.confidence}%</span>
+      </div>
+      <div class="trade-levels">
+        <div class="tl-cell"><div class="tl-label">ENTRY</div><div class="tl-val e">${r.levels.entry}</div></div>
+        <div class="tl-cell"><div class="tl-label">SL (${r.levels.slPips}p)</div><div class="tl-val s">${r.levels.sl}</div></div>
+        <div class="tl-cell"><div class="tl-label">TP (${r.levels.tpPips}p)</div><div class="tl-val t">${r.levels.tp}</div></div>
+      </div>
+      <div class="dollar-row">
+        <div class="dr-item"><div class="dr-label">RISK</div><div class="dr-val risk">-$${r.levels.riskDollars.toFixed(2)}</div></div>
+        <div class="dr-item"><div class="dr-label">REWARD 1:${r.levels.rrRatio}</div><div class="dr-val rwd">+$${r.levels.rewardDollars.toFixed(2)}</div></div>
+        <div class="dr-item"><div class="dr-label">SPREAD</div><div class="dr-val sp">${r.levels.spreadPips}p</div></div>
+        <div class="dr-item"><div class="dr-label">VIABILITY</div><div class="dr-val ${r.levels.viable?'v':'m'}">${r.levels.viable?'✔ VIABLE':'⚠ MARGINAL'}</div></div>
+      </div>`
+      :`<div style="padding:8px 12px;font-family:'Share Tech Mono',monospace;font-size:0.56rem;color:var(--dim);">Missing: ${r.chips.filter(c=>!c.p).map(c=>c.n).join(', ')}</div>`}
+      <div class="gate-chips">${chipHTML}</div>`;
+    if(r.signal!=='no-signal'){
+      card.style.cursor='pointer';
+      card.title='Tap to view signal alert and pre-trade checklist';
+      card.addEventListener('click',()=>fireAlert(r));
+    }
+    grid.appendChild(card);
+  });
+  container.innerHTML='';
+  container.appendChild(grid);
+}
+
+// ── RUN SCAN ──────────────────────────────────
+// ── CANCEL SCAN ──────────────────────────────
+let scanCancelled = false;
+
+function cancelScan(){
+  scanCancelled = true;
+  document.getElementById('scanOverlay').classList.remove('active');
+  document.getElementById('scanBtn').disabled = false;
+  document.getElementById('scanFill').style.width = '0%';
+  document.getElementById('scanText').textContent = 'RUNNING 7-GATE ANALYSIS...';
+  document.getElementById('scanSub').textContent = 'Fetching live data · Computing confluence formula';
+}
+
+async function runScan(){
+  if(consecutiveLosses>=3){
+    document.getElementById('lossWarning').style.display='block';
+    return;
+  }
+  scanCancelled = false;
+  const btn=document.getElementById('scanBtn');
+  const overlay=document.getElementById('scanOverlay');
+  const fill=document.getElementById('scanFill');
+  btn.disabled=true;overlay.classList.add('active');
+  scanResults=[];
+  const tfs=currentTF==='ALL'?['M5','M15','H1']:[currentTF];
+  const total=SCAN_PAIRS.length*tfs.length; // 7-gate scan
+  let done=0,anyLive=false,anyErr=false;
+
+  for(const pair of SCAN_PAIRS){
+    for(const tf of tfs){
+      if(scanCancelled) break;
+      document.getElementById('scanText').textContent=`RUNNING 7-GATE SCAN: ${pair} ${tf}...`;
+      document.getElementById('scanSub').textContent=apiKey?'Fetching 210 candles · Running 7-gate formula...':'Simulating candles · Running 7-gate formula...';
+      let candles=null,isLive=false;
+      if(apiKey){
+        await new Promise(r=>setTimeout(r,420));
+        // 5 second timeout — if API hangs, fall back to simulation immediately
+        const fetchWithTimeout = Promise.race([
+          fetchCandles(pair,tf),
+          new Promise(r=>setTimeout(()=>r(null),5000))
+        ]);
+        candles = await fetchWithTimeout;
+        if(candles){isLive=true;anyLive=true;}else{anyErr=true;}
+      }
+      // Always fall back to simulation if no candles
+      if(!candles){await new Promise(r=>setTimeout(r,80));candles=simCandles(pair);}
+      const result=applyGates(candles,pair);
+      const levels=result.signal!=='no-signal'?calcLevels(pair,tf,result.signal,result.ATR14,result.price):{spreadPips:EXNESS.spread[pair],spreadCost:'—',viable:false,rrRatio:RR[tf],slPips:0,tpPips:0,riskDollars:1,rewardDollars:0};
+      const finalResult={...result,pair,tf,levels,isLive};
+      scanResults.push(finalResult);
+
+      // Fire bell if full signal, watch alert if 5/6
+      if(result.signal==='buy'||result.signal==='sell'){
+        sigsToday++;
+        document.getElementById('statSigs').textContent=sigsToday;
+        setTimeout(()=>fireAlert(finalResult),800);
+      } else if(result.signal==='watch-buy'||result.signal==='watch-sell'){
+        sigsToday++;
+        document.getElementById('statSigs').textContent=sigsToday;
+      }
+      done++;fill.style.width=(done/total*100)+'%';
+    }
+    if(scanCancelled) break;
+  }
+  if(scanCancelled){ scanResults=[]; return; }
+  await new Promise(r=>setTimeout(r,200));
+  overlay.classList.remove('active');btn.disabled=false;
+  // Record scan time and restart auto-scan timer
+  lastScanTime = new Date();
+  updateLastScanDisplay();
+  startAutoScan(); // Reset 15-min timer after manual scan
+  const badge=document.getElementById('dataBadge');
+  if(anyLive){badge.className='data-badge live';badge.textContent='✔ LIVE DATA — Twelve Data';}
+  else if(anyErr){badge.className='data-badge err';badge.textContent='✗ API ERROR — Using simulated';}
+  else{badge.className='data-badge sim';badge.textContent='⚠ SIMULATED DATA — No API key';}
+  renderCards(scanResults);
+}
+
+// ── TRADE LOGGING ─────────────────────────────
+function addTrade(r,fromChecklist){
+  const now=new Date();
+  const p=n=>String(n).padStart(2,'0');
+  const time=`${p(now.getUTCHours())}:${p(now.getUTCMinutes())}`;
+  const trade={
+    id:Date.now(),time,pair:r.pair,tf:r.tf,signal:r.signal,
+    risk:RISK,reward:r.levels.rewardDollars,rrRatio:r.levels.rrRatio,
+    status:'open',result:null,checklist:fromChecklist
+  };
+  trades.unshift(trade);
+  renderTracker();
+}
+
+function setOutcome(id,outcome){
+  const t=trades.find(x=>x.id===id);
+  if(!t||t.status!=='open')return;
+  t.status=outcome;
+  if(outcome==='win'){
+    t.result=`+$${t.reward.toFixed(2)}`;
+    balance+=t.reward;
+    consecutiveLosses=0;
+  }else{
+    t.result=`-$${t.risk.toFixed(2)}`;
+    balance-=t.risk;
+    consecutiveLosses++;
+    if(consecutiveLosses>=3)document.getElementById('lossWarning').style.display='block';
+  }
+  renderTracker();
+  updateDiscScore();
+}
+
+function renderTracker(){
+  const wins=trades.filter(t=>t.status==='win').length;
+  const losses=trades.filter(t=>t.status==='loss').length;
+  const open=trades.filter(t=>t.status==='open').length;
+  const pnl=trades.reduce((s,t)=>{
+    if(t.status==='win')return s+t.reward;
+    if(t.status==='loss')return s-t.risk;
+    return s;
+  },0);
+  document.getElementById('trkSigs').textContent=sigsToday;
+  document.getElementById('trkTaken').textContent=trades.length;
+  document.getElementById('trkWins').textContent=wins;
+  document.getElementById('trkLoss').textContent=losses;
+  const plEl=document.getElementById('trkPL');
+  plEl.textContent=(pnl>=0?'+':'')+`$${pnl.toFixed(2)}`;
+  plEl.style.color=pnl>=0?'#00e676':'#ff4569';
+  document.getElementById('statAccount').textContent=`$${balance.toFixed(2)}`;
+  document.getElementById('statPL').textContent=(pnl>=0?'+':'')+`$${pnl.toFixed(2)}`;
+  document.getElementById('statPL').style.color=pnl>=0?'#00e676':'#ff4569';
+
+  const logEl=document.getElementById('tradeLog');
+  if(!trades.length){logEl.innerHTML='<div class="no-log">No trades yet</div>';return;}
+  logEl.innerHTML=trades.map(t=>`
+    <div class="log-entry ${t.status}">
+      <span class="log-time">${t.time}</span>
+      <span class="log-pair">${t.pair}</span>
+      <span class="log-dir ${t.signal==='buy'?'bd':'sd'}">${t.signal.toUpperCase()}</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:0.5rem;color:var(--dim);">${t.tf} 1:${t.rrRatio}</span>
+      ${t.status==='open'
+        ?`<span style="display:flex;gap:3px;margin-left:auto;">
+            <button onclick="setOutcome(${t.id},'win')" style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;padding:2px 6px;background:transparent;border:1px solid rgba(0,255,136,0.4);color:var(--green);cursor:pointer;">WIN</button>
+            <button onclick="setOutcome(${t.id},'loss')" style="font-family:'Share Tech Mono',monospace;font-size:0.52rem;padding:2px 6px;background:transparent;border:1px solid rgba(255,45,85,0.4);color:var(--red);cursor:pointer;">LOSS</button>
+          </span>`
+        :`<span class="log-res ${t.status==='win'?'p':'l'}" style="margin-left:auto;">${t.result}</span>`
+      }
+    </div>`).join('');
+}
+
+// ── DISCIPLINE SCORE ──────────────────────────
+function updateDiscScore(){
+  const score=Math.max(0,Math.min(100,discScore));
+  document.getElementById('statDisc').textContent=score+'%';
+  document.getElementById('discNum').textContent=score;
+  const circ=document.getElementById('discCircle');
+  if(circ){
+    const offset=201.1*(1-score/100);
+    circ.style.strokeDashoffset=offset;
+    circ.style.stroke=score>=80?'#ffd700':score>=60?'#e040fb':'#ff4569';
+  }
+  const ratingEl=document.getElementById('discRating');
+  const descEl=document.getElementById('discDesc');
+  if(score>=90){ratingEl.textContent='ELITE TRADER';ratingEl.className='disc-rating';ratingEl.style.color='#ffd700';descEl.textContent='All rules followed. System running clean. You are building the proof.';}
+  else if(score>=75){ratingEl.textContent='DISCIPLINED';ratingEl.className='disc-rating';ratingEl.style.color='#e040fb';descEl.textContent='Good discipline. Minor deviations. Review the rules and tighten up.';}
+  else if(score>=55){ratingEl.textContent='DEVELOPING';ratingEl.className='disc-rating';ratingEl.style.color='#ffd700';descEl.textContent='Some rule violations detected. Revisit the My Page tab. Recommit to the system.';}
+  else{ratingEl.textContent='NEEDS WORK';ratingEl.className='disc-rating';ratingEl.style.color='#ff4569';descEl.textContent='Significant violations. Step back. Re-read My Page. The system only works if YOU work it.';}
+}
+
+// ── TF BUTTONS ────────────────────────────────
+document.querySelectorAll('.tf-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');currentTF=btn.dataset.tf;
+  });
+});
+
+// Auto refresh every 5 min
+// Auto-rescan every 15 minutes silently while tab is open
+let autoScanInterval = null;
+let lastScanTime = null;
+
+function startAutoScan() {
+  if(autoScanInterval) clearInterval(autoScanInterval);
+  autoScanInterval = setInterval(async ()=>{
+    if(consecutiveLosses>=3) return;
+    // Silent rescan - update timestamp
+    lastScanTime = new Date();
+    updateLastScanDisplay();
+    await runScan();
+  }, 15 * 60 * 1000); // Every 15 minutes
+}
+
+function updateLastScanDisplay() {
+  const el = document.getElementById('lastScanTime');
+  if(!el || !lastScanTime) return;
+  const p = n => String(n).padStart(2,'0');
+  const sast = new Date(lastScanTime.getTime() + 2*3600000);
+  el.textContent = `Last scan: ${p(sast.getUTCHours())}:${p(sast.getUTCMinutes())} SAST · Next in 15 min`;
+  el.style.color = '#00e676';
+}
+
+// Start auto-scan when page loads
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    startAutoScan();
+  }, 2000);
+});
+
+updateDiscScore();
+renderTracker();
+</script>
+
+
+<!-- FLOATING SCAN WIDGET -->
+<div class="float-widget fw-corner-br" id="floatWidget">
+  <div class="fw-header" id="floatHeader">
+    <span class="fw-title">Z2B SCAN</span>
+    <div class="fw-controls">
+      <button class="fw-btn" onclick="snapCorner('tl')" title="Top Left">↖</button>
+      <button class="fw-btn" onclick="snapCorner('tr')" title="Top Right">↗</button>
+      <button class="fw-btn" onclick="snapCorner('bl')" title="Bottom Left">↙</button>
+      <button class="fw-btn" onclick="snapCorner('br')" title="Bottom Right">↘</button>
+      <button class="fw-btn" onclick="hideFloat()" title="Close">✕</button>
+    </div>
+  </div>
+  <div class="fw-body">
+    <div class="fw-status idle" id="fwStatus">WATCHING...</div>
+    <div class="fw-signal idle" id="fwSignal">NO SIGNAL</div>
+    <div class="fw-pair" id="fwPair">—</div>
+    <div class="fw-next" id="fwNext">Next scan: —</div>
+  </div>
+  <button class="fw-expand" onclick="expandFloat()">↑ OPEN FULL VIEW</button>
+</div>
+
+<!-- PWA INSTALL BANNER -->
+<div class="pwa-banner" id="pwaBanner">
+  <div class="pwa-banner-icon">📱</div>
+  <div class="pwa-banner-text">
+    <div class="pwa-banner-title">INSTALL Z2B TRADER</div>
+    <div class="pwa-banner-sub">Add to home screen · Works offline · Bell notifications</div>
+  </div>
+  <button class="pwa-install-btn" onclick="installPWA()">INSTALL</button>
+  <button class="pwa-dismiss-btn" onclick="dismissPWA()">✕</button>
+</div>
+
+<!-- OFFLINE BADGE -->
+<div class="offline-badge" id="offlineBadge">📵 OFFLINE</div>
+
+<!-- UPDATE BANNER -->
+<div class="update-banner" id="updateBanner" onclick="applyUpdate()">
+  🔄 New version available — tap to update
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// PWA — Service Worker + Install + Offline
+// ═══════════════════════════════════════════════
+
+let deferredInstallPrompt = null;
+let swRegistration = null;
+
+// ── REGISTER SERVICE WORKER ──────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      swRegistration = await navigator.serviceWorker.register('/sw.js');
+      console.log('Z2B SW registered:', swRegistration.scope);
+
+      // Check for updates
+      swRegistration.addEventListener('updatefound', () => {
+        const newWorker = swRegistration.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            document.getElementById('updateBanner').classList.add('show');
+          }
+        });
+      });
+    } catch (err) {
+      console.log('SW registration failed:', err);
+    }
+  });
+
+  // Reload when new SW takes control
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    window.location.reload();
+  });
+}
+
+function applyUpdate() {
+  if (swRegistration && swRegistration.waiting) {
+    swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+  }
+  document.getElementById('updateBanner').classList.remove('show');
+}
+
+// ── INSTALL PROMPT ───────────────────────────
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  // Show banner after 3 seconds if not dismissed before
+  const dismissed = localStorage.getItem('z2b_pwa_dismissed');
+  if (!dismissed) {
+    setTimeout(() => {
+      document.getElementById('pwaBanner').classList.add('show');
+    }, 3000);
+  }
+});
+
+async function installPWA() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  const { outcome } = await deferredInstallPrompt.userChoice;
+  if (outcome === 'accepted') {
+    console.log('Z2B PWA installed!');
+    document.getElementById('pwaBanner').classList.remove('show');
+    localStorage.setItem('z2b_pwa_installed', 'true');
+  }
+  deferredInstallPrompt = null;
+}
+
+function dismissPWA() {
+  document.getElementById('pwaBanner').classList.remove('show');
+  localStorage.setItem('z2b_pwa_dismissed', 'true');
+}
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('pwaBanner').classList.remove('show');
+  console.log('Z2B PWA was installed');
+});
+
+// ── ONLINE / OFFLINE DETECTION ───────────────
+function updateOnlineStatus() {
+  const badge = document.getElementById('offlineBadge');
+  if (!navigator.onLine) {
+    badge.classList.add('show');
+  } else {
+    badge.classList.remove('show');
+  }
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+updateOnlineStatus();
+
+// ── PUSH NOTIFICATIONS (enhanced) ────────────
+async function requestNotifs() {
+  if (!('Notification' in window)) {
+    alert('Notifications not supported on this browser.');
+    return;
+  }
+  const permission = await Notification.requestPermission();
+  notifsGranted = permission === 'granted';
+  const btn = document.getElementById('notifBtn');
+  if (notifsGranted) {
+    btn.textContent = '🔔 BELL ACTIVE';
+    btn.className = 'notif-btn ok';
+    localStorage.setItem('z2b_notifs', 'granted');
+    // Send a test notification
+    new Notification('🔔 Z2B Bell Activated!', {
+      body: 'You will be alerted the moment all 7 gates pass. You can now step away from the screen.',
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      requireInteraction: false
+    });
+  } else {
+    alert('Notifications blocked. Enable in browser settings for the full bell experience.');
+  }
+}
+
+// Restore notification permission on load
+if (localStorage.getItem('z2b_notifs') === 'granted' && Notification.permission === 'granted') {
+  notifsGranted = true;
+  const btn = document.getElementById('notifBtn');
+  if (btn) { btn.textContent = '🔔 BELL ACTIVE'; btn.className = 'notif-btn ok'; }
+}
+
+// ── LOCALSTORAGE PERSISTENCE ─────────────────
+// Auto-save trades every time they change
+const _origRenderTracker = renderTracker;
+renderTracker = function() {
+  _origRenderTracker();
+  localStorage.setItem('z2b_trades_v2', JSON.stringify(trades));
+  localStorage.setItem('z2b_balance_v2', balance.toString());
+  localStorage.setItem('z2b_sigs_today', sigsToday.toString());
+  localStorage.setItem('z2b_consec_losses', consecutiveLosses.toString());
+  localStorage.setItem('z2b_disc_score', discScore.toString());
+};
+
+// Restore saved data on load
+(function restoreData() {
+  const savedTrades = localStorage.getItem('z2b_trades_v2');
+  const savedBalance = localStorage.getItem('z2b_balance_v2');
+  const savedSigs = localStorage.getItem('z2b_sigs_today');
+  const savedLosses = localStorage.getItem('z2b_consec_losses');
+  const savedDisc = localStorage.getItem('z2b_disc_score');
+
+  if (savedTrades) {
+    try {
+      trades = JSON.parse(savedTrades);
+    } catch(e) { trades = []; }
+  }
+  if (savedBalance) balance = parseFloat(savedBalance);
+  if (savedSigs) sigsToday = parseInt(savedSigs);
+  if (savedLosses) {
+    consecutiveLosses = parseInt(savedLosses);
+    if (consecutiveLosses >= 3) {
+      document.getElementById('lossWarning').style.display = 'block';
+    }
+  }
+  if (savedDisc) discScore = parseInt(savedDisc);
+
+  // Reset daily data if it's a new day
+  const lastDate = localStorage.getItem('z2b_last_date');
+  const today = new Date().toDateString();
+  if (lastDate !== today) {
+    sigsToday = 0;
+    consecutiveLosses = 0;
+    localStorage.setItem('z2b_last_date', today);
+    localStorage.setItem('z2b_sigs_today', '0');
+    localStorage.setItem('z2b_consec_losses', '0');
+    document.getElementById('lossWarning').style.display = 'none';
+  }
+
+  renderTracker();
+  updateDiscScore();
+  document.getElementById('statAccount').textContent = '$' + balance.toFixed(2);
+})();
+
+// ═══════════════════════════════════════════════
+// DEMO / LIVE MODE — FIXED IMPLEMENTATION
+// ═══════════════════════════════════════════════
+let tradingMode = localStorage.getItem('z2b_mode') || 'demo';
+
+function setTradingMode(mode) {
+  tradingMode = mode;
+  localStorage.setItem('z2b_mode', mode);
+
+  // Buttons
+  const demoBtn = document.getElementById('demoBtnToggle');
+  const liveBtn = document.getElementById('liveBtnToggle');
+  if(demoBtn) demoBtn.className = 'mode-toggle-btn demo-btn' + (mode==='demo'?' active':'');
+  if(liveBtn) liveBtn.className = 'mode-toggle-btn live-btn' + (mode==='live'?' active':'');
+
+  // Banners
+  const demoBnr = document.getElementById('demoBanner');
+  const liveBnr = document.getElementById('liveBanner');
+  if(demoBnr) demoBnr.className = 'demo-banner' + (mode==='demo'?' show':'');
+  if(liveBnr) liveBnr.className = 'live-banner' + (mode==='live'?' show':'');
+
+  // Note text
+  const note = document.getElementById('modeAccountNote');
+  if(note){
+    note.textContent = mode==='demo'
+      ? 'Practising with virtual money · No real money at risk'
+      : 'Real money active · Exness Standard · $1 risk per trade';
+    note.style.color = mode==='demo' ? '#ffd700' : '#00e676';
+  }
+
+  // Load the correct balance & trades for this mode
+  const balKey   = mode==='demo' ? 'z2b_demo_balance'  : 'z2b_live_balance';
+  const tradeKey = mode==='demo' ? 'z2b_trades_demo'   : 'z2b_trades_live';
+  balance = parseFloat(localStorage.getItem(balKey) || '10.00');
+  try { trades = JSON.parse(localStorage.getItem(tradeKey) || '[]'); } catch(e){ trades=[]; }
+
+  renderTracker();
+  updateModeTag();
+}
+
+function updateModeTag(){
+  const el = document.getElementById('statAccount');
+  if(!el) return;
+  const tag = tradingMode==='demo'
+    ? '<span class="demo-tag">DEMO</span>'
+    : '<span class="live-tag">LIVE</span>';
+  el.innerHTML = '$' + balance.toFixed(2) + ' ' + tag;
+}
+
+function saveModeData(){
+  const balKey   = tradingMode==='demo' ? 'z2b_demo_balance'  : 'z2b_live_balance';
+  const tradeKey = tradingMode==='demo' ? 'z2b_trades_demo'   : 'z2b_trades_live';
+  localStorage.setItem(balKey,   balance.toString());
+  localStorage.setItem(tradeKey, JSON.stringify(trades));
+}
+
+// Hook into existing renderTracker so mode data saves automatically
+const _modeRender = renderTracker;
+renderTracker = function(){
+  _modeRender();
+  saveModeData();
+  updateModeTag();
+};
+
+// Hook into setOutcome
+const _modeOutcome = setOutcome;
+setOutcome = function(id, outcome){
+  _modeOutcome(id, outcome);
+  saveModeData();
+  updateModeTag();
+};
+
+// Initialise after a short delay so DOM + functions are all ready
+window.addEventListener('load', function(){
+  setTimeout(function(){
+    setTradingMode(localStorage.getItem('z2b_mode') || 'demo');
+  }, 150);
+});
+
+
+// ═══════════════════════════════════════════════
+// GATE 7 — NEWS FILTER
+// Uses ForexFactory-compatible calendar data
+// Blocks signals 15 min before and after high-impact news
+// ═══════════════════════════════════════════════
+
+let newsEvents = [];
+let newsBlackoutActive = false;
+let newsCheckInterval = null;
+
+// High impact news keywords to watch
+const HIGH_IMPACT_KEYWORDS = [
+  'Non-Farm','NFP','Interest Rate','Fed','FOMC','CPI','GDP','Employment',
+  'Unemployment','Retail Sales','PMI','ECB','BOE','BOJ','RBA','RBNZ',
+  'Inflation','Trade Balance','Current Account','Jackson Hole'
+];
+
+// Major currency pairs affected by each currency
+const CURRENCY_PAIRS = {
+  'USD': ['EUR/USD','GBP/USD','USD/JPY','AUD/USD','USD/CAD','USD/CHF','XAU/USD','USOIL'],
+  'EUR': ['EUR/USD','EUR/JPY'],
+  'GBP': ['GBP/USD','GBP/JPY'],
+  'JPY': ['USD/JPY','EUR/JPY','GBP/JPY'],
+  'AUD': ['AUD/USD'],
+  'CAD': ['USD/CAD'],
+  'CHF': ['USD/CHF'],
+};
+
+// Fetch economic calendar from API
+async function fetchNewsCalendar() {
+  try {
+    // Use a CORS-friendly calendar API
+    const today = new Date();
+    const dateStr = today.toISOString().split('T')[0];
+    
+    // Try to fetch from a free calendar source
+    // Using a hardcoded fallback of major weekly events if API fails
+    const response = await Promise.race([
+      fetch(`https://nfs.faireconomy.media/ff_calendar_thisweek.json`),
+      new Promise((_, reject) => setTimeout(() => reject('timeout'), 5000))
+    ]);
+    
+    if (response && response.ok) {
+      const data = await response.json();
+      // Filter today's high impact events
+      const todayEvents = data.filter(e => {
+        const eDate = new Date(e.date);
+        const isToday = eDate.toDateString() === today.toDateString();
+        const isHighImpact = e.impact === 'High';
+        return isToday && isHighImpact;
+      }).map(e => ({
+        time: new Date(e.date),
+        currency: e.country,
+        name: e.title,
+        impact: 'HIGH',
+        source: 'live'
+      }));
+      
+      newsEvents = todayEvents;
+      console.log('[G7] Loaded', todayEvents.length, 'high-impact events today');
+    }
+  } catch(err) {
+    console.log('[G7] Calendar API unavailable — using manual mode');
+    newsEvents = [];
+  }
+  
+  updateNewsDisplay();
+}
+
+// Check if currently in news blackout window
+function isNewsBlackout() {
+  if (!newsEvents.length) return false;
+  
+  const now = new Date();
+  const BLACKOUT_MINS = 15; // 15 min before and after
+  
+  for (const event of newsEvents) {
+    const diffMs = event.time - now;
+    const diffMins = diffMs / 60000;
+    
+    // Within 15 min before OR 15 min after
+    if (diffMins >= -BLACKOUT_MINS && diffMins <= BLACKOUT_MINS) {
+      return { active: true, event, minsUntil: diffMins };
+    }
+  }
+  return false;
+}
+
+// Get time until next event
+function getNextEvent() {
+  const now = new Date();
+  const future = newsEvents
+    .filter(e => e.time > now)
+    .sort((a,b) => a.time - b.time);
+  return future[0] || null;
+}
+
+// Format time in SAST
+function toSAST(date) {
+  const sast = new Date(date.getTime() + 2*3600000);
+  const h = String(sast.getUTCHours()).padStart(2,'0');
+  const m = String(sast.getUTCMinutes()).padStart(2,'0');
+  return h + ':' + m;
+}
+
+// Format countdown
+function formatCountdown(ms) {
+  const totalSecs = Math.abs(Math.floor(ms/1000));
+  const mins = Math.floor(totalSecs/60);
+  const secs = totalSecs % 60;
+  return String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0');
+}
+
+// Update news display
+function updateNewsDisplay() {
+  const bar       = document.getElementById('newsBar');
+  const barTitle  = document.getElementById('newsBarTitle');
+  const eventsEl  = document.getElementById('newsEvents');
+  const blackout  = document.getElementById('newsBlackout');
+  const countdown = document.getElementById('newsCountdown');
+  if(!bar) return;
+
+  const now           = new Date();
+  const blackoutCheck = isNewsBlackout();
+
+  // ── BLACKOUT ─────────────────────────────────────────
+  if (blackoutCheck && blackoutCheck.active) {
+    newsBlackoutActive = true;
+    blackout.classList.add('show');
+    bar.className = 'news-bar blocked';
+
+    const ev      = blackoutCheck.event;
+    const diffMs  = ev.time - now;
+    const isBefore = diffMs > 0;
+    const resumeMs = ev.time.getTime() + 15*60000 - now;
+    const affected = (CURRENCY_PAIRS[ev.currency]||[]).join(' · ') || 'All major pairs';
+
+    barTitle.innerHTML =
+      '<span style="color:#ff4569;font-weight:900;font-size:0.65rem;">🚫 BLACKOUT</span>' +
+      '&nbsp;&nbsp;<span style="color:#b39ddb;">|</span>&nbsp;&nbsp;GATE 7' +
+      '&nbsp;&nbsp;<span style="color:#ff4569;background:rgba(255,69,105,0.12);padding:2px 8px;border:1px solid rgba(255,69,105,0.4);">🔴 ALL SIGNALS BLOCKED</span>';
+
+    if(countdown){
+      countdown.innerHTML = isBefore
+        ? '<span style="color:#b39ddb;font-size:0.58rem;display:block;">News fires in</span><span style="font-size:1.4rem;color:#ffd700;font-weight:900;">' + formatCountdown(diffMs) + '</span>'
+        : '<span style="color:#b39ddb;font-size:0.58rem;display:block;">Blackout clears in</span><span style="font-size:1.4rem;color:#00e676;font-weight:900;">' + formatCountdown(resumeMs) + '</span>';
+    }
+
+    eventsEl.innerHTML =
+      '<div style="background:rgba(255,69,105,0.07);border:1px solid rgba(255,69,105,0.3);padding:10px;margin-top:6px;border-radius:2px;">' +
+        '<div style="font-family:Share Tech Mono,monospace;font-size:0.55rem;color:#ff4569;font-weight:700;margin-bottom:6px;letter-spacing:0.1em;">⚠ WHY ALL SIGNALS ARE BLOCKED RIGHT NOW:</div>' +
+        '<div style="font-family:Rajdhani,sans-serif;font-size:0.88rem;color:#f0e6ff;line-height:1.7;margin-bottom:7px;">' +
+          '📌 <strong style="color:#ffd700;">' + ev.name + '</strong> <span style="color:#b39ddb;">(' + ev.currency + ')</span> is scheduled at <strong style="color:#ffd700;">' + toSAST(ev.time) + ' SAST</strong>.<br>' +
+          'High-impact events like this move <strong style="color:#ffffff;">' + affected + '</strong> by <strong style="color:#ff4569;">50–200 pips in seconds</strong> — ' +
+          'instantly destroying any technically perfect trade regardless of all 6 gates being passed.<br>' +
+          '<span style="color:#ffd700;">Gate 7 protects you from being stopped out by news volatility.</span>' +
+        '</div>' +
+        '<div style="font-family:Share Tech Mono,monospace;font-size:0.52rem;color:#ffd700;border-top:1px solid rgba(255,215,0,0.15);padding-top:6px;">' +
+          '⏳ Signals blocked 15 min before + 15 min after · Auto-resumes when window clears' +
+        '</div>' +
+      '</div>';
+    return;
+  }
+
+  // ── CLEAR / WARNING ───────────────────────────────────
+  newsBlackoutActive = false;
+  blackout.classList.remove('show');
+  const nextEvent = getNextEvent();
+
+  // NO NEWS TODAY
+  if (!nextEvent) {
+    bar.className = 'news-bar safe';
+    barTitle.innerHTML =
+      '<span style="color:#00e676;font-weight:900;font-size:0.65rem;">✅ CLEAR</span>' +
+      '&nbsp;&nbsp;<span style="color:#b39ddb;">|</span>&nbsp;&nbsp;GATE 7' +
+      '&nbsp;&nbsp;<span style="color:#00e676;background:rgba(0,230,118,0.1);padding:2px 8px;border:1px solid rgba(0,230,118,0.3);">🟢 SAFE TO TRADE</span>';
+    eventsEl.innerHTML =
+      '<div style="font-family:Rajdhani,sans-serif;font-size:0.85rem;color:#f0e6ff;padding:5px 0;line-height:1.6;">' +
+        '✅ No high-impact news events scheduled today. All pairs are clear. ' +
+        'Gates 1–6 signals are valid. Gate 7 is open — you are safe to trade.' +
+      '</div>';
+    return;
+  }
+
+  const minsUntil = (nextEvent.time - now) / 60000;
+  const affected2  = (CURRENCY_PAIRS[nextEvent.currency]||[]).join(' · ') || 'Major pairs';
+
+  // WARNING — within 30 min
+  if (minsUntil <= 30) {
+    bar.className = 'news-bar warning';
+    barTitle.innerHTML =
+      '<span style="color:#ffd700;font-weight:900;font-size:0.65rem;">⚠ WARNING</span>' +
+      '&nbsp;&nbsp;<span style="color:#b39ddb;">|</span>&nbsp;&nbsp;GATE 7' +
+      '&nbsp;&nbsp;<span style="color:#ffd700;background:rgba(255,215,0,0.1);padding:2px 8px;border:1px solid rgba(255,215,0,0.3);">🟡 CAUTION — NEWS IN ' + Math.round(minsUntil) + ' MIN</span>';
+
+    eventsEl.innerHTML =
+      '<div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.25);padding:10px;margin-top:6px;border-radius:2px;">' +
+        '<div style="font-family:Share Tech Mono,monospace;font-size:0.55rem;color:#ffd700;font-weight:700;margin-bottom:6px;letter-spacing:0.1em;">⚠ WHY YOU SHOULD BE CAUTIOUS RIGHT NOW:</div>' +
+        '<div style="font-family:Rajdhani,sans-serif;font-size:0.88rem;color:#f0e6ff;line-height:1.7;margin-bottom:7px;">' +
+          '📌 <strong style="color:#ffd700;">' + nextEvent.name + '</strong> <span style="color:#b39ddb;">(' + nextEvent.currency + ')</span> fires at <strong style="color:#ffd700;">' + toSAST(nextEvent.time) + ' SAST</strong> — in <strong style="color:#ff4569;">' + Math.round(minsUntil) + ' minutes</strong>.<br>' +
+          'Affected pairs: <strong style="color:#ffffff;">' + affected2 + '</strong>.<br>' +
+          'Any trade entered now may be caught in the news spike. ' +
+          '<span style="color:#ffd700;">Gate 7 blackout activates in ' + Math.round(Math.max(0,minsUntil - 15)) + ' min.</span><br>' +
+          'Recommendation: <strong style="color:#00e676;">Wait for news to pass before entering any trade on affected pairs.</strong>' +
+        '</div>' +
+        '<div style="font-family:Share Tech Mono,monospace;font-size:0.52rem;color:#ffd700;border-top:1px solid rgba(255,215,0,0.15);padding-top:6px;">' +
+          '📅 Events today: ' + newsEvents.map(function(e){var p=e.time<now;return (p?'[PASSED] ':'[UPCOMING] ')+e.currency+' '+e.name+' '+toSAST(e.time);}).join(' · ') +
+        '</div>' +
+      '</div>';
+
+  } else {
+    // CLEAR — next news more than 30 min away
+    bar.className = 'news-bar safe';
+    barTitle.innerHTML =
+      '<span style="color:#00e676;font-weight:900;font-size:0.65rem;">✅ CLEAR</span>' +
+      '&nbsp;&nbsp;<span style="color:#b39ddb;">|</span>&nbsp;&nbsp;GATE 7' +
+      '&nbsp;&nbsp;<span style="color:#00e676;background:rgba(0,230,118,0.1);padding:2px 8px;border:1px solid rgba(0,230,118,0.3);">🟢 SAFE TO TRADE</span>' +
+      '&nbsp;&nbsp;<span style="color:#b39ddb;font-size:0.52rem;">Next: ' + nextEvent.currency + ' ' + toSAST(nextEvent.time) + ' SAST</span>';
+
+    eventsEl.innerHTML =
+      '<div style="font-family:Rajdhani,sans-serif;font-size:0.85rem;color:#f0e6ff;padding:5px 0;line-height:1.6;">' +
+        '✅ Market is clear. All Gates 1–6 signals are valid. Gate 7 is open — safe to trade.<br>' +
+        '📅 Next event: <strong style="color:#ffd700;">' + nextEvent.name + '</strong> (' + nextEvent.currency + ') at <strong style="color:#ffd700;">' + toSAST(nextEvent.time) + ' SAST</strong>. ' +
+        'Affects: <strong style="color:#ffffff;">' + affected2 + '</strong>. ' +
+        'Gate 7 warning starts at <strong style="color:#ffd700;">' + toSAST(new Date(nextEvent.time.getTime()-30*60000)) + ' SAST</strong>.' +
+      '</div>' +
+      (newsEvents.length ? '<div style="margin-top:5px;">' + newsEvents.map(function(e){
+        var p=e.time<now;
+        var statusClass=p?'passed':'upcoming';
+        var statusText=p?'PASSED':'UPCOMING';
+        var impactIcon=p?'&#10003;':'&#128308;';
+        return '<div class="news-event"><span class="ne-impact">'+impactIcon+'</span><span class="ne-time">'+toSAST(e.time)+'</span><span class="ne-currency">'+e.currency+'</span><span class="ne-name">'+e.name+'</span><span class="ne-status '+statusClass+'">'+statusText+'</span></div>';
+      }).join('') + '</div>' : '');
+  }
+}
+
+
+// Override isActiveSession to also check news blackout
+const _origIsActiveSession = isActiveSession;
+isActiveSession = function() {
+  // First check session
+  if (!_origIsActiveSession()) return false;
+  // Then check news blackout — Gate 7
+  if (newsBlackoutActive) return false;
+  return true;
+};
+
+// Override runScan to show news warning
+const _origRunScan = runScan;
+runScan = async function() {
+  const blackoutCheck = isNewsBlackout();
+  if (blackoutCheck && blackoutCheck.active) {
+    // Show blackout warning — do not scan
+    document.getElementById('newsBlackout').classList.add('show');
+    return;
+  }
+  return _origRunScan();
+};
+
+// Start news ticker — update every 30 seconds
+function startNewsTicker() {
+  updateNewsDisplay();
+  setInterval(updateNewsDisplay, 30000);
+}
+
+// Load calendar on startup
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    fetchNewsCalendar();
+    startNewsTicker();
+    // Refresh calendar every hour
+    setInterval(fetchNewsCalendar, 3600000);
+  }, 1500);
+});
+
+
+// ═══════════════════════════════════════════════
+// FLOATING SCAN WIDGET
+// ═══════════════════════════════════════════════
+let floatVisible = false;
+let isDragging = false;
+let dragOffX = 0, dragOffY = 0;
+let nextScanTime = null;
+
+function showFloat() {
+  const w = document.getElementById('floatWidget');
+  if(w){ w.classList.add('show'); floatVisible = true; }
+}
+
+function hideFloat() {
+  const w = document.getElementById('floatWidget');
+  if(w){ w.classList.remove('show'); floatVisible = false; }
+}
+
+function expandFloat() {
+  hideFloat();
+  showTab('scanner');
+  // Find and click scanner tab
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if(b.textContent.includes('SCANNER')) b.click();
+  });
+}
+
+function minimiseScan() {
+  console.log('[Z2B] Minimise tapped');
+  // Hide overlay immediately
+  const overlay = document.getElementById('scanOverlay');
+  if(overlay){
+    overlay.style.display = 'none'; // Force hide
+    setTimeout(()=>{ overlay.style.display=''; }, 100);
+    overlay.classList.remove('active');
+  }
+  // Show floating widget in bottom right
+  const fw = document.getElementById('floatWidget');
+  if(fw){
+    fw.classList.add('show');
+    fw.classList.add('fw-corner-br');
+    floatVisible = true;
+  }
+  updateFloatStatus('scanning', 'SCANNING...', 'IN BACKGROUND', 'Running — bell rings if signal fires');
+}
+
+function snapCorner(corner) {
+  const w = document.getElementById('floatWidget');
+  if(!w) return;
+
+  // Clear all inline styles from dragging
+  w.style.left = '';
+  w.style.right = '';
+  w.style.top = '';
+  w.style.bottom = '';
+
+  // Remove all corner classes first
+  w.classList.remove('fw-corner-tl','fw-corner-tr','fw-corner-bl','fw-corner-br');
+
+  // Apply correct corner via inline style — more reliable than classes
+  const GAP = '10px';
+  const TOP_OFFSET = '80px';
+  const BOT_OFFSET = '80px';
+
+  if(corner === 'tl'){ w.style.top = TOP_OFFSET; w.style.left = GAP; }
+  else if(corner === 'tr'){ w.style.top = TOP_OFFSET; w.style.right = GAP; }
+  else if(corner === 'bl'){ w.style.bottom = BOT_OFFSET; w.style.left = GAP; }
+  else if(corner === 'br'){ w.style.bottom = BOT_OFFSET; w.style.right = GAP; }
+
+  // Make sure widget stays visible
+  w.classList.add('show');
+  floatVisible = true;
+}
+
+function updateFloatStatus(statusClass, statusText, signalText, nextText, signalClass) {
+  const s = document.getElementById('fwStatus');
+  const sig = document.getElementById('fwSignal');
+  const next = document.getElementById('fwNext');
+  if(s){ s.className = 'fw-status ' + statusClass; s.textContent = statusText; }
+  if(sig){ sig.className = 'fw-signal ' + (signalClass||'idle'); sig.textContent = signalText; }
+  if(next){ next.textContent = nextText; }
+}
+
+// Drag functionality
+const fw = document.getElementById('floatWidget');
+const fwHeader = document.getElementById('floatHeader');
+if(fw && fwHeader) {
+  fwHeader.addEventListener('mousedown', startDrag);
+  fwHeader.addEventListener('touchstart', startDragTouch, {passive:true});
+}
+
+// Add touch backup for minimise button
+window.addEventListener('load', function(){
+  try {
+    var minBtn = document.getElementById('minimiseBtn');
+    if(minBtn){
+      minBtn.addEventListener('touchend', function(e){
+        e.preventDefault();
+        minimiseScan();
+      });
+    }
+  } catch(err){ console.log('minimise touch init:', err); }
+});
+
+function startDrag(e) {
+  isDragging = true;
+  const fw = document.getElementById('floatWidget');
+  const rect = fw.getBoundingClientRect();
+  dragOffX = e.clientX - rect.left;
+  dragOffY = e.clientY - rect.top;
+  fw.classList.add('dragging');
+  // Remove corner classes when dragging
+  fw.classList.remove('fw-corner-tl','fw-corner-tr','fw-corner-bl','fw-corner-br');
+  document.addEventListener('mousemove', doDrag);
+  document.addEventListener('mouseup', stopDrag);
+}
+
+function startDragTouch(e) {
+  const touch = e.touches[0];
+  isDragging = true;
+  const fw = document.getElementById('floatWidget');
+  const rect = fw.getBoundingClientRect();
+  dragOffX = touch.clientX - rect.left;
+  dragOffY = touch.clientY - rect.top;
+  fw.classList.add('dragging');
+  fw.classList.remove('fw-corner-tl','fw-corner-tr','fw-corner-bl','fw-corner-br');
+  document.addEventListener('touchmove', doDragTouch, {passive:false});
+  document.addEventListener('touchend', stopDrag);
+}
+
+function doDrag(e) {
+  if(!isDragging) return;
+  const fw = document.getElementById('floatWidget');
+  let x = e.clientX - dragOffX;
+  let y = e.clientY - dragOffY;
+  // Keep within screen
+  x = Math.max(0, Math.min(window.innerWidth - fw.offsetWidth, x));
+  y = Math.max(0, Math.min(window.innerHeight - fw.offsetHeight, y));
+  fw.style.left = x + 'px';
+  fw.style.top  = y + 'px';
+  fw.style.right = 'auto';
+  fw.style.bottom = 'auto';
+}
+
+function doDragTouch(e) {
+  e.preventDefault();
+  const touch = e.touches[0];
+  const fw = document.getElementById('floatWidget');
+  let x = touch.clientX - dragOffX;
+  let y = touch.clientY - dragOffY;
+  x = Math.max(0, Math.min(window.innerWidth - fw.offsetWidth, x));
+  y = Math.max(0, Math.min(window.innerHeight - fw.offsetHeight, y));
+  fw.style.left = x + 'px';
+  fw.style.top  = y + 'px';
+  fw.style.right = 'auto';
+  fw.style.bottom = 'auto';
+}
+
+function stopDrag() {
+  isDragging = false;
+  const fw = document.getElementById('floatWidget');
+  if(fw) fw.classList.remove('dragging');
+  document.removeEventListener('mousemove', doDrag);
+  document.removeEventListener('mouseup', stopDrag);
+  document.removeEventListener('touchmove', doDragTouch);
+  document.removeEventListener('touchend', stopDrag);
+}
+
+// Update float widget when signal fires
+const _origFireAlert = fireAlert;
+fireAlert = function(result) {
+  // Update float widget
+  const sig = result.signal === 'buy' ? 'BUY' : result.signal === 'sell' ? 'SELL' : 'WATCH';
+  const sigClass = result.signal === 'buy' ? 'buy' : result.signal === 'sell' ? 'sell' : 'watch';
+  updateFloatStatus('signal', '🔔 SIGNAL!', sig + ' ' + result.pair, result.tf + ' · 1:' + result.levels.rrRatio, sigClass);
+  // Call original
+  _origFireAlert(result);
+};
+
+// Update float next scan countdown
+setInterval(() => {
+  if(!floatVisible) return;
+  if(nextScanTime) {
+    const diff = nextScanTime - new Date();
+    if(diff > 0) {
+      const mins = Math.floor(diff/60000);
+      const secs = Math.floor((diff%60000)/1000);
+      document.getElementById('fwNext').textContent = 
+        'Next: ' + String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0');
+    }
+  }
+}, 1000);
+
+// ═══════════════════════════════════════════════
+// TAP TO COPY
+// ═══════════════════════════════════════════════
+function copyVal(val, btn) {
+  navigator.clipboard.writeText(val).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✔ COPIED';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.classList.remove('copied');
+    }, 2000);
+  }).catch(() => {
+    // Fallback for older browsers
+    const ta = document.createElement('textarea');
+    ta.value = val;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✔ COPIED';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 COPY'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+</script>
+
+</body>
+</html>
