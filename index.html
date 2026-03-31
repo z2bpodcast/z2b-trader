@@ -705,7 +705,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
   </div>
 
   <div class="news-bar safe" id="newsBar">
-    <div class="news-bar-title" id="newsBarTitle">⚡ GATE 7 — LOADING NEWS CALENDAR...</div>
+    <div class="news-bar-title" id="newsBarTitle">⚡ GATE 7 &nbsp;|&nbsp; <span style="color:#ffd700;">LOADING NEWS CALENDAR...</span></div>
     <div class="news-events" id="newsEvents"></div>
   </div>
 
@@ -2257,77 +2257,124 @@ function formatCountdown(ms) {
 
 // Update news display
 function updateNewsDisplay() {
-  const bar = document.getElementById('newsBar');
-  const barTitle = document.getElementById('newsBarTitle');
-  const eventsEl = document.getElementById('newsEvents');
-  const blackout = document.getElementById('newsBlackout');
+  const bar       = document.getElementById('newsBar');
+  const barTitle  = document.getElementById('newsBarTitle');
+  const eventsEl  = document.getElementById('newsEvents');
+  const blackout  = document.getElementById('newsBlackout');
   const countdown = document.getElementById('newsCountdown');
-  
   if(!bar) return;
-  
-  const now = new Date();
+
+  const now           = new Date();
   const blackoutCheck = isNewsBlackout();
-  
+
+  // ── BLACKOUT ─────────────────────────────────────────
   if (blackoutCheck && blackoutCheck.active) {
-    // BLACKOUT ACTIVE
     newsBlackoutActive = true;
     blackout.classList.add('show');
     bar.className = 'news-bar blocked';
-    barTitle.textContent = '🚫 GATE 7 — NEWS BLACKOUT ACTIVE';
-    
-    const diffMs = blackoutCheck.event.time - now;
-    if (diffMs > 0) {
-      countdown.textContent = 'News in: ' + formatCountdown(diffMs);
-    } else {
-      countdown.textContent = 'Resumes in: ' + formatCountdown((blackoutCheck.event.time.getTime() + 15*60000) - now);
+
+    const ev      = blackoutCheck.event;
+    const diffMs  = ev.time - now;
+    const isBefore = diffMs > 0;
+    const resumeMs = ev.time.getTime() + 15*60000 - now;
+    const affected = (CURRENCY_PAIRS[ev.currency]||[]).join(' · ') || 'All major pairs';
+
+    barTitle.innerHTML =
+      '<span style="color:#ff4569;font-weight:900;font-size:0.65rem;">🚫 BLACKOUT</span>' +
+      '&nbsp;&nbsp;<span style="color:#b39ddb;">|</span>&nbsp;&nbsp;GATE 7' +
+      '&nbsp;&nbsp;<span style="color:#ff4569;background:rgba(255,69,105,0.12);padding:2px 8px;border:1px solid rgba(255,69,105,0.4);">🔴 ALL SIGNALS BLOCKED</span>';
+
+    if(countdown){
+      countdown.innerHTML = isBefore
+        ? '<span style="color:#b39ddb;font-size:0.58rem;display:block;">News fires in</span><span style="font-size:1.4rem;color:#ffd700;font-weight:900;">' + formatCountdown(diffMs) + '</span>'
+        : '<span style="color:#b39ddb;font-size:0.58rem;display:block;">Blackout clears in</span><span style="font-size:1.4rem;color:#00e676;font-weight:900;">' + formatCountdown(resumeMs) + '</span>';
     }
+
+    eventsEl.innerHTML =
+      '<div style="background:rgba(255,69,105,0.07);border:1px solid rgba(255,69,105,0.3);padding:10px;margin-top:6px;border-radius:2px;">' +
+        '<div style="font-family:Share Tech Mono,monospace;font-size:0.55rem;color:#ff4569;font-weight:700;margin-bottom:6px;letter-spacing:0.1em;">⚠ WHY ALL SIGNALS ARE BLOCKED RIGHT NOW:</div>' +
+        '<div style="font-family:Rajdhani,sans-serif;font-size:0.88rem;color:#f0e6ff;line-height:1.7;margin-bottom:7px;">' +
+          '📌 <strong style="color:#ffd700;">' + ev.name + '</strong> <span style="color:#b39ddb;">(' + ev.currency + ')</span> is scheduled at <strong style="color:#ffd700;">' + toSAST(ev.time) + ' SAST</strong>.<br>' +
+          'High-impact events like this move <strong style="color:#ffffff;">' + affected + '</strong> by <strong style="color:#ff4569;">50–200 pips in seconds</strong> — ' +
+          'instantly destroying any technically perfect trade regardless of all 6 gates being passed.<br>' +
+          '<span style="color:#ffd700;">Gate 7 protects you from being stopped out by news volatility.</span>' +
+        '</div>' +
+        '<div style="font-family:Share Tech Mono,monospace;font-size:0.52rem;color:#ffd700;border-top:1px solid rgba(255,215,0,0.15);padding-top:6px;">' +
+          '⏳ Signals blocked 15 min before + 15 min after · Auto-resumes when window clears' +
+        '</div>' +
+      '</div>';
+    return;
+  }
+
+  // ── CLEAR / WARNING ───────────────────────────────────
+  newsBlackoutActive = false;
+  blackout.classList.remove('show');
+  const nextEvent = getNextEvent();
+
+  // NO NEWS TODAY
+  if (!nextEvent) {
+    bar.className = 'news-bar safe';
+    barTitle.innerHTML =
+      '<span style="color:#00e676;font-weight:900;font-size:0.65rem;">✅ CLEAR</span>' +
+      '&nbsp;&nbsp;<span style="color:#b39ddb;">|</span>&nbsp;&nbsp;GATE 7' +
+      '&nbsp;&nbsp;<span style="color:#00e676;background:rgba(0,230,118,0.1);padding:2px 8px;border:1px solid rgba(0,230,118,0.3);">🟢 SAFE TO TRADE</span>';
+    eventsEl.innerHTML =
+      '<div style="font-family:Rajdhani,sans-serif;font-size:0.85rem;color:#f0e6ff;padding:5px 0;line-height:1.6;">' +
+        '✅ No high-impact news events scheduled today. All pairs are clear. ' +
+        'Gates 1–6 signals are valid. Gate 7 is open — you are safe to trade.' +
+      '</div>';
+    return;
+  }
+
+  const minsUntil = (nextEvent.time - now) / 60000;
+  const affected2  = (CURRENCY_PAIRS[nextEvent.currency]||[]).join(' · ') || 'Major pairs';
+
+  // WARNING — within 30 min
+  if (minsUntil <= 30) {
+    bar.className = 'news-bar warning';
+    barTitle.innerHTML =
+      '<span style="color:#ffd700;font-weight:900;font-size:0.65rem;">⚠ WARNING</span>' +
+      '&nbsp;&nbsp;<span style="color:#b39ddb;">|</span>&nbsp;&nbsp;GATE 7' +
+      '&nbsp;&nbsp;<span style="color:#ffd700;background:rgba(255,215,0,0.1);padding:2px 8px;border:1px solid rgba(255,215,0,0.3);">🟡 CAUTION — NEWS IN ' + Math.round(minsUntil) + ' MIN</span>';
+
+    eventsEl.innerHTML =
+      '<div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.25);padding:10px;margin-top:6px;border-radius:2px;">' +
+        '<div style="font-family:Share Tech Mono,monospace;font-size:0.55rem;color:#ffd700;font-weight:700;margin-bottom:6px;letter-spacing:0.1em;">⚠ WHY YOU SHOULD BE CAUTIOUS RIGHT NOW:</div>' +
+        '<div style="font-family:Rajdhani,sans-serif;font-size:0.88rem;color:#f0e6ff;line-height:1.7;margin-bottom:7px;">' +
+          '📌 <strong style="color:#ffd700;">' + nextEvent.name + '</strong> <span style="color:#b39ddb;">(' + nextEvent.currency + ')</span> fires at <strong style="color:#ffd700;">' + toSAST(nextEvent.time) + ' SAST</strong> — in <strong style="color:#ff4569;">' + Math.round(minsUntil) + ' minutes</strong>.<br>' +
+          'Affected pairs: <strong style="color:#ffffff;">' + affected2 + '</strong>.<br>' +
+          'Any trade entered now may be caught in the news spike. ' +
+          '<span style="color:#ffd700;">Gate 7 blackout activates in ' + Math.round(Math.max(0,minsUntil - 15)) + ' min.</span><br>' +
+          'Recommendation: <strong style="color:#00e676;">Wait for news to pass before entering any trade on affected pairs.</strong>' +
+        '</div>' +
+        '<div style="font-family:Share Tech Mono,monospace;font-size:0.52rem;color:#ffd700;border-top:1px solid rgba(255,215,0,0.15);padding-top:6px;">' +
+          '📅 Events today: ' + newsEvents.map(e=>{const p=e.time<now;return (p?'[PASSED] ':'[UPCOMING] ')+e.currency+' '+e.name+' '+toSAST(e.time)}).join('  ·  ') +
+        '</div>' +
+      '</div>';
+
   } else {
-    // CLEAR
-    newsBlackoutActive = false;
-    blackout.classList.remove('show');
-    
-    const nextEvent = getNextEvent();
-    
-    if (!nextEvent) {
-      bar.className = 'news-bar safe';
-      barTitle.textContent = '✅ GATE 7 — NO HIGH-IMPACT NEWS TODAY · CLEAR TO TRADE';
-      eventsEl.innerHTML = '<div style="font-family:'Share Tech Mono',monospace;font-size:0.54rem;color:#00e676;padding:4px;">No high-impact news events scheduled · All pairs clear</div>';
-      return;
-    }
-    
-    const minsUntil = (nextEvent.time - now) / 60000;
-    
-    if (minsUntil <= 30) {
-      bar.className = 'news-bar warning';
-      barTitle.textContent = '⚠ GATE 7 — HIGH IMPACT NEWS IN ' + Math.round(minsUntil) + ' MIN · TRADE WITH CAUTION';
-    } else {
-      bar.className = 'news-bar safe';
-      barTitle.textContent = '✅ GATE 7 — MARKET CLEAR · Next news: ' + toSAST(nextEvent.time) + ' SAST';
-    }
-    
-    // Show today's events
-    if (newsEvents.length) {
-      eventsEl.innerHTML = newsEvents.map(e => {
-        const isPassed = e.time < now;
-        const isUpcoming = !isPassed;
-        const minsTo = (e.time - now) / 60000;
-        const isWarning = minsTo >= -15 && minsTo <= 30;
-        
-        return `<div class="news-event">
-          <span class="ne-impact">${isPassed ? '✓' : '🔴'}</span>
-          <span class="ne-time">${toSAST(e.time)}</span>
-          <span class="ne-currency">${e.currency}</span>
-          <span class="ne-name">${e.name}</span>
-          <span class="ne-status ${isPassed?'passed':isWarning?'blackout':'upcoming'}">
-            ${isPassed ? 'PASSED' : isWarning ? '⚠ BLACKOUT' : 'UPCOMING'}
-          </span>
-        </div>`;
-      }).join('');
-    } else {
-      eventsEl.innerHTML = '<div style="font-family:'Share Tech Mono',monospace;font-size:0.54rem;color:#b39ddb;padding:4px;">Calendar loading... Always check forexfactory.com manually</div>';
-    }
+    // CLEAR — next news more than 30 min away
+    bar.className = 'news-bar safe';
+    barTitle.innerHTML =
+      '<span style="color:#00e676;font-weight:900;font-size:0.65rem;">✅ CLEAR</span>' +
+      '&nbsp;&nbsp;<span style="color:#b39ddb;">|</span>&nbsp;&nbsp;GATE 7' +
+      '&nbsp;&nbsp;<span style="color:#00e676;background:rgba(0,230,118,0.1);padding:2px 8px;border:1px solid rgba(0,230,118,0.3);">🟢 SAFE TO TRADE</span>' +
+      '&nbsp;&nbsp;<span style="color:#b39ddb;font-size:0.52rem;">Next: ' + nextEvent.currency + ' ' + toSAST(nextEvent.time) + ' SAST</span>';
+
+    eventsEl.innerHTML =
+      '<div style="font-family:Rajdhani,sans-serif;font-size:0.85rem;color:#f0e6ff;padding:5px 0;line-height:1.6;">' +
+        '✅ Market is clear. All Gates 1–6 signals are valid. Gate 7 is open — safe to trade.<br>' +
+        '📅 Next event: <strong style="color:#ffd700;">' + nextEvent.name + '</strong> (' + nextEvent.currency + ') at <strong style="color:#ffd700;">' + toSAST(nextEvent.time) + ' SAST</strong>. ' +
+        'Affects: <strong style="color:#ffffff;">' + affected2 + '</strong>. ' +
+        'Gate 7 warning starts at <strong style="color:#ffd700;">' + toSAST(new Date(nextEvent.time.getTime()-30*60000)) + ' SAST</strong>.' +
+      '</div>' +
+      (newsEvents.length ? '<div style="margin-top:5px;">' + newsEvents.map(e=>{
+        const p=e.time<now;
+        return '<div class="news-event"><span class="ne-impact">'+(p?'✓':'🔴')+'</span><span class="ne-time">'+toSAST(e.time)+'</span><span class="ne-currency">'+e.currency+'</span><span class="ne-name">'+e.name+'</span><span class="ne-status '+(p?'passed':'upcoming')+'">'+(p?'PASSED':'UPCOMING')+'</span></div>';
+      }).join('') + '</div>' : '');
   }
 }
+
 
 // Override isActiveSession to also check news blackout
 const _origIsActiveSession = isActiveSession;
