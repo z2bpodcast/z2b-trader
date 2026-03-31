@@ -223,7 +223,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 .data-badge.sim{border-color:#ffd700;color:#ffd700;background:rgba(255,215,0,0.07);}
 .data-badge.err{border-color:#ff4569;color:#ff4569;background:rgba(255,69,105,0.07);}
 
-.scan-overlay{display:none;position:fixed;inset:0;background:rgba(26,5,51,0.97);z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+.scan-overlay{display:none;position:fixed;inset:0;background:rgba(26,5,51,0.97);z-index:400;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
 .scan-overlay.active{display:flex;}
 .scan-spinner{width:44px;height:44px;border:2px solid #5b2d8e;border-top-color:#ffd700;border-radius:50%;animation:spin 0.7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -692,6 +692,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
   </div>
 
 
+
   <!-- GATE 7 — NEWS FILTER -->
   <div class="news-blackout-overlay" id="newsBlackout">
     <div class="nbo-title">🚫 NEWS BLACKOUT — GATE 7 ACTIVE</div>
@@ -711,7 +712,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
     <button class="tf-btn" data-tf="M5">M5</button>
     <button class="tf-btn" data-tf="H1">H1</button>
     <button class="tf-btn" data-tf="ALL">M5+M15+H1</button>
-    <button class="scan-btn" id="scanBtn" onclick="runScan()">⟳ RUN 6-GATE SCAN</button>
+    <button class="scan-btn" id="scanBtn" onclick="runScan()">⟳ RUN 7-GATE SCAN</button>
   </div>
 
   <div class="session-bar">
@@ -723,7 +724,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 
   <div class="scan-overlay" id="scanOverlay">
     <div class="scan-spinner"></div>
-    <div class="scan-text" id="scanText">RUNNING 6-GATE ANALYSIS...</div>
+    <div class="scan-text" id="scanText">RUNNING 7-GATE ANALYSIS...</div>
     <div class="scan-sub" id="scanSub">Fetching live data · Computing confluence formula</div>
     <div class="scan-progress"><div class="scan-fill" id="scanFill"></div></div>
     <button class="cancel-scan-btn" onclick="cancelScan()">✕ STOP SCAN — BACK TO DASHBOARD</button>
@@ -731,7 +732,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
   </div>
 
   <div id="oppsContainer">
-    <div class="empty-state"><span class="es-icon">🎯</span>Press RUN 6-GATE SCAN<br>Bell rings when all 6 gates pass — you don't have to watch</div>
+    <div class="empty-state"><span class="es-icon">🎯</span>Press RUN 7-GATE SCAN<br>Bell rings when all 7 gates pass — you don't have to watch</div>
   </div>
 
   <div class="tracker">
@@ -785,12 +786,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
     </div>
   </div>
 
-  <!-- THE 6 GATES -->
+  <!-- THE 7 GATES -->
   <div class="rule-block">
     <div class="rule-block-head">
       <span class="rb-icon">🔒</span>
-      <span class="rb-title">THE 6-GATE CONFLUENCE FORMULA</span>
-      <span class="rb-badge green">ALL 6 MUST PASS</span>
+      <span class="rb-title">THE 7-GATE CONFLUENCE FORMULA</span>
+      <span class="rb-badge green">ALL 7 MUST PASS</span>
     </div>
     <div class="rule-block-body">
       <div class="rule-item"><span class="ri-num">G1</span><div class="ri-text"><strong>EMA200 TREND DIRECTION</strong> — Price above EMA200 = BUY only. Price below EMA200 = SELL only. <span class="hi-green">Never fight the 200 EMA.</span> This is the master filter.</div></div>
@@ -807,12 +808,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
   <div class="rule-block">
     <div class="rule-block-head">
       <span class="rb-icon">🔍</span>
-      <span class="rb-title">THE 5-OF-6 WATCH LIST</span>
+      <span class="rb-title">THE 6-OF-7 WATCH LIST</span>
       <span class="rb-badge yellow">MONITOR — DO NOT TRADE</span>
     </div>
     <div class="rule-block-body">
-      <div class="rule-item"><span class="ri-num">W1</span><div class="ri-text"><strong>What is a Watch Signal?</strong> — When 5 of 6 gates pass the scanner shows a gold 🔍 WATCH card. One gate is missing. The card tells you exactly which gate is failing and what needs to change.</div></div>
-      <div class="rule-item"><span class="ri-num">W2</span><div class="ri-text"><span class="hi-red"><strong>Do NOT trade a Watch Signal.</strong></span> 5 gates is not 6 gates. The market is close but not confirmed. Your edge only exists when all 6 agree. Patience is the skill.</div></div>
+      <div class="rule-item"><span class="ri-num">W1</span><div class="ri-text"><strong>What is a Watch Signal?</strong> — When 6 of 7 gates pass the scanner shows a gold 🔍 WATCH card. One gate is missing. The card tells you exactly which gate is failing and what needs to change.</div></div>
+      <div class="rule-item"><span class="ri-num">W2</span><div class="ri-text"><span class="hi-red"><strong>Do NOT trade a Watch Signal.</strong></span> 7 gates is not 7 gates. The market is close but not confirmed. Your edge only exists when all 6 agree. Patience is the skill.</div></div>
       <div class="rule-item"><span class="ri-num">W3</span><div class="ri-text"><strong>What to do with a Watch:</strong> Note the pair and the missing gate. Wait for the next auto-scan in 15 minutes. If all 6 pass on that scan — <span class="hi-green">that is your entry signal.</span></div></div>
       <div class="rule-item"><span class="ri-num">W4</span><div class="ri-text"><strong>Watch Signals build your expertise.</strong> After 30 days — review your journal. Which gate blocked the most Watch Signals from becoming full signals? That is the gate you adjust first — based on real data, not theory.</div></div>
     </div>
@@ -874,7 +875,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
             <td class="ht-n">1</td>
             <td class="ht-trap">FEAR</td>
             <td>Signal fires. You hesitate. You chase it late. Stopped at the worst price.</td>
-            <td class="ht-sol">Bell fires immediately when 6 gates pass. Pre-trade checklist forces a decision — take it or consciously skip it. <span class="ht-imp">✔ BELL IMPLEMENTED</span></td>
+            <td class="ht-sol">Bell fires immediately when 7 gates pass. Pre-trade checklist forces a decision — take it or consciously skip it. <span class="ht-imp">✔ BELL IMPLEMENTED</span></td>
           </tr>
           <tr>
             <td class="ht-n">2</td>
@@ -898,7 +899,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
             <td class="ht-n">5</td>
             <td class="ht-trap">BOREDOM</td>
             <td>No signal for 2 hours. You create one that isn't there. You call it intuition.</td>
-            <td class="ht-sol">The 6-gate strict formula cannot fire unless all conditions align. Bell only rings when real. Your job is to wait. <span class="ht-imp">✔ STRICT GATES</span></td>
+            <td class="ht-sol">The 7-gate strict formula cannot fire unless all conditions align. Bell only rings when real. Your job is to wait. <span class="ht-imp">✔ STRICT GATES</span></td>
           </tr>
         </tbody>
       </table>
@@ -1003,7 +1004,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
         <div class="rule-block-head"><span class="rb-icon">📅</span><span class="rb-title">YOUR IDEAL DAILY SCHEDULE (SAST)</span></div>
         <div class="rule-block-body">
           <div class="rule-item"><span class="ri-num">9:50</span><div class="ri-text"><strong>Pre-Market Prep</strong> — Open Z2B Command Centre. Check economic calendar for high-impact news (avoid trading 15 min before/after red flag events). Set browser notifications ON.</div></div>
-          <div class="rule-item"><span class="ri-num">10:00</span><div class="ri-text"><strong>London Open Scan</strong> — Run the 6-gate scan. If signal fires, bell rings. Otherwise <span class="hi-green">step away from the screen</span>. The app watches for you.</div></div>
+          <div class="rule-item"><span class="ri-num">10:00</span><div class="ri-text"><strong>London Open Scan</strong> — Run the 7-gate scan. If signal fires, bell rings. Otherwise <span class="hi-green">step away from the screen</span>. The app watches for you.</div></div>
           <div class="rule-item"><span class="ri-num">2:30</span><div class="ri-text"><strong>Pre-Overlap Prep</strong> — Return before New York opens. Run another scan. Review any open trades. Confirm you are mentally ready for your prime window.</div></div>
           <div class="rule-item"><span class="ri-num">3:00–7:00</span><div class="ri-text"><strong style="color:var(--green)">PRIME WINDOW — App watches. Bell rings if signal fires.</strong> You place trade in under 60 seconds on Exness. Walk away. Let the RR play out. Do not watch the candles.</div></div>
           <div class="rule-item"><span class="ri-num">7:00–10:00</span><div class="ri-text"><strong>NY Late Session</strong> — Optional. Run one more scan if you have capacity. Be more selective. If no signal by 10PM, shut down for the night.</div></div>
@@ -1030,7 +1031,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
     <div class="rule-block-body">
       <div class="rule-item"><span class="ri-num">D1</span><div class="ri-text"><strong>Check the economic calendar.</strong> Visit forexfactory.com. Identify all red flag (high-impact) news for the day. <span class="hi-red">Do not trade 15 minutes before or after red flag events.</span></div></div>
       <div class="rule-item"><span class="ri-num">D2</span><div class="ri-text"><strong>Set your mental state.</strong> If you are emotional — stressed, angry, anxious — <span class="hi-red">do not trade today.</span> Come back tomorrow. Emotional trading destroys disciplined systems.</div></div>
-      <div class="rule-item"><span class="ri-num">D3</span><div class="ri-text"><strong>Review yesterday's trades.</strong> Open the journal. What happened? What did you learn? Did you follow all 6 gates? Did you complete the checklist? 2 minutes of review builds expertise.</div></div>
+      <div class="rule-item"><span class="ri-num">D3</span><div class="ri-text"><strong>Review yesterday's trades.</strong> Open the journal. What happened? What did you learn? Did you follow all 7 gates? Did you complete the checklist? 2 minutes of review builds expertise.</div></div>
       <div class="rule-item"><span class="ri-num">D4</span><div class="ri-text"><strong>Confirm your Exness account is funded.</strong> Minimum $10 maintained. Know your current balance before trading. Never trade scared money — money you cannot afford to lose.</div></div>
       <div class="rule-item"><span class="ri-num">D5</span><div class="ri-text"><strong>Enable bell notifications.</strong> Tap the 🔔 ENABLE BELL button in the scanner tab. This is how the system alerts you without you watching screens all day.</div></div>
     </div>
@@ -1061,7 +1062,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
   <div class="rule-block">
     <div class="rule-block-head"><span class="rb-icon">📈</span><span class="rb-title">WEEKLY DUTIES — BUILDING THE PROOF</span><span class="rb-badge green">Z2B LEGACY BUILDERS</span></div>
     <div class="rule-block-body">
-      <div class="rule-item"><span class="ri-num">W1</span><div class="ri-text"><strong>Every Friday:</strong> Review weekly P&L and win rate. Is the system working? Are you following all 6 gates? Are signals firing in the right sessions?</div></div>
+      <div class="rule-item"><span class="ri-num">W1</span><div class="ri-text"><strong>Every Friday:</strong> Review weekly P&L and win rate. Is the system working? Are you following all 7 gates? Are signals firing in the right sessions?</div></div>
       <div class="rule-item"><span class="ri-num">W2</span><div class="ri-text"><strong>Identify your best session.</strong> Which session — London open, overlap, or NY late — gave you the most consistent results? Trade that session harder next week.</div></div>
       <div class="rule-item"><span class="ri-num">W3</span><div class="ri-text"><strong>Identify your best pair.</strong> Which pair — EUR/USD, GBP/USD, USD/JPY, AUD/USD — gave you the cleanest signals? Focus more attention there.</div></div>
       <div class="rule-item"><span class="ri-num">W4</span><div class="ri-text"><strong>After 30 days:</strong> Calculate your real win rate. If above 50% with 1:3 RR, the system is profitable. If below, review which gate you are compromising on. <span class="hi-green">Data, not feelings.</span></div></div>
@@ -1090,7 +1091,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
         <div class="bi-step-num">2</div>
         <div class="bi-step-text">
           <strong>Read the signal card</strong> — check the pair, direction (BUY/SELL),
-          entry price, stop loss and take profit. All 6 gates must show ✔.
+          entry price, stop loss and take profit. All 7 gates must show ✔.
         </div>
       </div>
 
@@ -1150,7 +1151,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
       <div class="bi-step" style="border-color:rgba(255,69,105,0.3);background:rgba(255,69,105,0.04);">
         <div class="bi-step-num" style="color:#ff4569;">✗</div>
         <div class="bi-step-text">
-          <strong style="color:#ffd700;">🔍 WATCH SIGNAL (5/6 gates)</strong> — One gate is missing. Note which gate is failing on the card. Monitor that pair — if the missing gate aligns in the next candle, a full signal may fire. Do NOT trade a watch signal. Wait for all 6. <br><br><strong class="red">NEVER:</strong> Move your stop loss · Close early out of fear ·
+          <strong style="color:#ffd700;">🔍 WATCH SIGNAL (6/7 gates)</strong> — One gate is missing. Note which gate is failing on the card. Monitor that pair — if the missing gate aligns in the next candle, a full signal may fire. Do NOT trade a watch signal. Wait for all 6. <br><br><strong class="red">NEVER:</strong> Move your stop loss · Close early out of fear ·
           Add to a losing position · Take a second trade on the same pair while one is open ·
           Trade after 3 consecutive losses in a day.
         </div>
@@ -1320,7 +1321,7 @@ function ringBell(){
 function sendNotif(signal,pair,tf){
   if(notifsGranted&&Notification.permission==='granted'){
     new Notification(`🔔 Z2B SIGNAL: ${signal.toUpperCase()} ${pair}`,{
-      body:`${tf} · All 6 gates passed · RR 1:${RR[tf]} · Open Z2B Command Centre`,
+      body:`${tf} · All 7 gates passed · RR 1:${RR[tf]} · Open Z2B Command Centre`,
       icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔔</text></svg>',
       requireInteraction:true
     });
@@ -1467,7 +1468,7 @@ function calcATR(highs,lows,closes,p=14){
   return s/p;
 }
 
-// ── 6-GATE FORMULA ────────────────────────────
+// ── 7-GATE FORMULA ────────────────────────────
 function applyGates(candles,pair){
   const closes=candles.map(c=>c.close);
   const highs=candles.map(c=>c.high);
@@ -1483,17 +1484,17 @@ function applyGates(candles,pair){
   // RSI zones relaxed: BUY 45-70 (captures strong trends), SELL 30-55
   const bGates=[price>EMA200,EMA9>EMA21&&EMA21>EMA50,MACD.macdLine>MACD.sig&&MACD.rising,RSI14>=45&&RSI14<=70,ADX14>=20,sess];
   const sGates=[price<EMA200,EMA9<EMA21&&EMA21<EMA50,MACD.macdLine<MACD.sig&&!MACD.rising,RSI14>=30&&RSI14<=55,ADX14>=20,sess];
-  const bPass=bGates.filter(Boolean).length;
+  const bPass=bGates.filter(Boolean).length; // G1-G7
   const sPass=sGates.filter(Boolean).length;
 
   let signal='no-signal',gateResults=bGates,gatesPassed=Math.max(bPass,sPass);
-  if(bPass===6){signal='buy';gateResults=bGates;gatesPassed=6;}
-  else if(sPass===6){signal='sell';gateResults=sGates;gatesPassed=6;}
-  else if(bPass===5){signal='watch-buy';gateResults=bGates;gatesPassed=5;}
-  else if(sPass===5){signal='watch-sell';gateResults=sGates;gatesPassed=5;}
+  if(bPass===7){signal='buy';gateResults=bGates;gatesPassed=6;}
+  else if(sPass===7){signal='sell';gateResults=sGates;gatesPassed=6;}
+  else if(bPass===6){signal='watch-buy';gateResults=bGates;gatesPassed=6;}
+  else if(sPass===6){signal='watch-sell';gateResults=sGates;gatesPassed=6;}
   else{gateResults=bPass>=sPass?bGates:sGates;}
 
-  const confidence=signal!=='no-signal'?Math.min(92,Math.max(58,65+(ADX14>=25?10:0))):0;
+  const confidence=signal!=='no-signal'?Math.min(95,Math.max(60,65+(ADX14>=25?10:0)+(newsBlackoutActive===false?5:0))):0;
   const chips=[
     {n:'G1:EMA200',p:gateResults[0]},{n:'G2:EMA STACK',p:gateResults[1]},
     {n:'G3:MACD',p:gateResults[2]},{n:'G4:RSI ZONE',p:gateResults[3]},
@@ -1574,10 +1575,10 @@ function renderCards(results){
     card.style.animationDelay=`${i*0.07}s`;
     const sigIdx=results.filter(x=>x.signal!=='no-signal').indexOf(r);
     const rankClass=sigIdx===0?'rank-1':sigIdx===1?'rank-2':'rank-o';
-    const rankLabel=r.signal==='no-signal'?`${r.gatesPassed}/6`:sigIdx===0?'★ BEST':'#'+(sigIdx+1);
-    const gpPct=(r.gatesPassed/6)*100;
-    const gpClass=r.gatesPassed===6?'all':'mid';
-    const gpTextClass=r.gatesPassed===6?'all':r.gatesPassed>=4?'mid':'low';
+    const rankLabel=r.signal==='no-signal'||r.signal.startsWith('watch')?`${r.gatesPassed}/7`:sigIdx===0?'★ BEST':'#'+(sigIdx+1);
+    const gpPct=(r.gatesPassed/7)*100;
+    const gpClass=r.gatesPassed===7?'all':'mid';
+    const gpTextClass=r.gatesPassed===7?'all':r.gatesPassed>=4?'mid':'low';
     const priceChange=r.price-PAIRS[r.pair].base;
     const dec=PAIRS[r.pair].dec;
     const chipHTML=r.chips.map(c=>`<div class="g-chip ${c.p?'p':'f'}">${c.p?'✔':'✗'} ${c.n}</div>`).join('');
@@ -1600,7 +1601,7 @@ function renderCards(results){
       </div>
       <div class="gates-row">
         <div class="gp-track"><div class="gp-fill ${gpClass}" style="width:${gpPct}%"></div></div>
-        <div class="gp-text ${gpTextClass}">${r.gatesPassed}/6 GATES</div>
+        <div class="gp-text ${gpTextClass}">${r.gatesPassed}/7 GATES</div>
       </div>
       ${r.signal!=='no-signal'?`
       <div class="conf-row">
@@ -1641,7 +1642,7 @@ function cancelScan(){
   document.getElementById('scanOverlay').classList.remove('active');
   document.getElementById('scanBtn').disabled = false;
   document.getElementById('scanFill').style.width = '0%';
-  document.getElementById('scanText').textContent = 'RUNNING 6-GATE ANALYSIS...';
+  document.getElementById('scanText').textContent = 'RUNNING 7-GATE ANALYSIS...';
   document.getElementById('scanSub').textContent = 'Fetching live data · Computing confluence formula';
 }
 
@@ -1657,14 +1658,14 @@ async function runScan(){
   btn.disabled=true;overlay.classList.add('active');
   scanResults=[];
   const tfs=currentTF==='ALL'?['M5','M15','H1']:[currentTF];
-  const total=SCAN_PAIRS.length*tfs.length;
+  const total=SCAN_PAIRS.length*tfs.length; // 7-gate scan
   let done=0,anyLive=false,anyErr=false;
 
   for(const pair of SCAN_PAIRS){
     for(const tf of tfs){
       if(scanCancelled) break;
-      document.getElementById('scanText').textContent=`SCANNING ${pair} ${tf}...`;
-      document.getElementById('scanSub').textContent=apiKey?'Fetching 210 candles · Running 6-gate formula...':'Simulating candles · Running 6-gate formula...';
+      document.getElementById('scanText').textContent=`RUNNING 7-GATE SCAN: ${pair} ${tf}...`;
+      document.getElementById('scanSub').textContent=apiKey?'Fetching 210 candles · Running 7-gate formula...':'Simulating candles · Running 7-gate formula...';
       let candles=null,isLive=false;
       if(apiKey){
         await new Promise(r=>setTimeout(r,420));
@@ -1989,7 +1990,7 @@ async function requestNotifs() {
     localStorage.setItem('z2b_notifs', 'granted');
     // Send a test notification
     new Notification('🔔 Z2B Bell Activated!', {
-      body: 'You will be alerted the moment all 6 gates pass. You can now step away from the screen.',
+      body: 'You will be alerted the moment all 7 gates pass. You can now step away from the screen.',
       icon: '/icons/icon-192.png',
       badge: '/icons/icon-192.png',
       requireInteraction: false
@@ -2392,11 +2393,13 @@ function expandFloat() {
 }
 
 function minimiseScan() {
-  // Hide scan overlay, show float widget
-  document.getElementById('scanOverlay').classList.remove('active');
-  document.getElementById('scanBtn').disabled = false;
+  // Hide the overlay BUT keep scan running in background
+  const overlay = document.getElementById('scanOverlay');
+  if(overlay) overlay.classList.remove('active');
+  // Show floating widget
   showFloat();
-  updateFloatStatus('scanning', 'SCANNING...', '—', 'Running in background');
+  updateFloatStatus('scanning', 'SCANNING...', 'IN BACKGROUND', 'Running — check back soon');
+  // scanCancelled stays false — scan keeps going
 }
 
 function snapCorner(corner) {
