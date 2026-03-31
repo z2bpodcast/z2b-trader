@@ -417,12 +417,15 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 /* ── CANCEL SCAN BUTTON ── */
 .cancel-scan-btn{
   font-family:'Share Tech Mono',monospace;font-size:0.65rem;
-  padding:8px 18px;background:transparent;
+  padding:12px 22px;background:transparent;
   border:1px solid #ff4569;color:#ff4569;
   cursor:pointer;letter-spacing:0.1em;transition:all 0.2s;
-  margin-top:4px;
+  margin-top:8px;position:relative;z-index:500;
+  -webkit-tap-highlight-color:rgba(255,69,105,0.3);
+  touch-action:manipulation;min-height:44px;
 }
 .cancel-scan-btn:hover{background:rgba(255,69,105,0.12);}
+.cancel-scan-btn:active{background:rgba(255,69,105,0.25);}
 
 
 /* ── BELL INSTRUCTIONS ── */
@@ -728,7 +731,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
     <div class="scan-sub" id="scanSub">Fetching live data · Computing confluence formula</div>
     <div class="scan-progress"><div class="scan-fill" id="scanFill"></div></div>
     <button class="cancel-scan-btn" onclick="cancelScan()">✕ STOP SCAN — BACK TO DASHBOARD</button>
-    <button class="cancel-scan-btn" style="border-color:#ffd700;color:#ffd700;margin-top:6px;" onclick="minimiseScan()">⊟ MINIMISE — KEEP SCANNING IN CORNER</button>
+    <button class="cancel-scan-btn" style="border-color:#ffd700;color:#ffd700;margin-top:8px;min-width:200px;" id="minimiseBtn" onclick="minimiseScan()">⊟ MINIMISE — KEEP SCANNING</button>
   </div>
 
   <div id="oppsContainer">
@@ -2393,13 +2396,22 @@ function expandFloat() {
 }
 
 function minimiseScan() {
-  // Hide the overlay BUT keep scan running in background
+  console.log('[Z2B] Minimise tapped');
+  // Hide overlay immediately
   const overlay = document.getElementById('scanOverlay');
-  if(overlay) overlay.classList.remove('active');
-  // Show floating widget
-  showFloat();
-  updateFloatStatus('scanning', 'SCANNING...', 'IN BACKGROUND', 'Running — check back soon');
-  // scanCancelled stays false — scan keeps going
+  if(overlay){
+    overlay.style.display = 'none'; // Force hide
+    setTimeout(()=>{ overlay.style.display=''; }, 100);
+    overlay.classList.remove('active');
+  }
+  // Show floating widget in bottom right
+  const fw = document.getElementById('floatWidget');
+  if(fw){
+    fw.classList.add('show');
+    fw.classList.add('fw-corner-br');
+    floatVisible = true;
+  }
+  updateFloatStatus('scanning', 'SCANNING...', 'IN BACKGROUND', 'Running — bell rings if signal fires');
 }
 
 function snapCorner(corner) {
@@ -2428,6 +2440,17 @@ if(fw && fwHeader) {
   fwHeader.addEventListener('mousedown', startDrag);
   fwHeader.addEventListener('touchstart', startDragTouch, {passive:true});
 }
+
+// Add touch backup for minimise button
+window.addEventListener('load', ()=>{
+  const minBtn = document.getElementById('minimiseBtn');
+  if(minBtn){
+    minBtn.addEventListener('touchend', (e)=>{
+      e.preventDefault();
+      minimiseScan();
+    });
+  }
+});
 
 function startDrag(e) {
   isDragging = true;
