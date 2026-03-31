@@ -481,6 +481,89 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
 .news-safe-note{font-family:'Share Tech Mono',monospace;font-size:0.52rem;
   color:#00e676;text-align:center;padding:6px;margin-bottom:8px;}
 
+
+/* ── FLOATING SCAN WIDGET ── */
+.float-widget{
+  position:fixed;z-index:800;
+  width:160px;background:#2d0f52;
+  border:1px solid #ffd700;
+  box-shadow:0 4px 20px rgba(255,215,0,0.25);
+  cursor:move;user-select:none;
+  transition:box-shadow 0.2s;
+  display:none;
+}
+.float-widget.show{display:block;}
+.float-widget.dragging{box-shadow:0 8px 32px rgba(255,215,0,0.5);}
+.fw-header{display:flex;align-items:center;justify-content:space-between;
+  padding:6px 8px;background:rgba(255,215,0,0.1);border-bottom:1px solid rgba(255,215,0,0.2);
+  cursor:move;}
+.fw-title{font-family:'Orbitron',monospace;font-size:0.52rem;color:#ffd700;
+  font-weight:700;letter-spacing:0.1em;}
+.fw-controls{display:flex;gap:4px;}
+.fw-btn{width:16px;height:16px;border:none;cursor:pointer;font-size:0.55rem;
+  display:flex;align-items:center;justify-content:center;background:transparent;
+  color:#b39ddb;transition:color 0.2s;}
+.fw-btn:hover{color:#ffd700;}
+.fw-body{padding:8px;}
+.fw-status{font-family:'Share Tech Mono',monospace;font-size:0.52rem;
+  margin-bottom:5px;text-align:center;}
+.fw-status.scanning{color:#ffd700;animation:flash 0.8s infinite;}
+.fw-status.idle{color:#b39ddb;}
+.fw-status.signal{color:#00e676;animation:flash 0.5s infinite;}
+.fw-status.blocked{color:#ff4569;}
+.fw-signal{font-family:'Orbitron',monospace;font-size:0.75rem;font-weight:900;
+  text-align:center;margin-bottom:4px;padding:4px;}
+.fw-signal.buy{color:#00e676;background:rgba(0,230,118,0.1);}
+.fw-signal.sell{color:#ff4569;background:rgba(255,69,105,0.1);}
+.fw-signal.watch{color:#ffd700;background:rgba(255,215,0,0.08);}
+.fw-signal.idle{color:#b39ddb;}
+.fw-pair{font-family:'Share Tech Mono',monospace;font-size:0.58rem;
+  color:#ffffff;text-align:center;margin-bottom:3px;}
+.fw-next{font-family:'Share Tech Mono',monospace;font-size:0.48rem;
+  color:#b39ddb;text-align:center;}
+.fw-expand{width:100%;font-family:'Share Tech Mono',monospace;font-size:0.5rem;
+  padding:5px;background:rgba(255,215,0,0.08);border:none;border-top:1px solid rgba(255,215,0,0.2);
+  color:#ffd700;cursor:pointer;letter-spacing:0.08em;}
+.fw-expand:hover{background:rgba(255,215,0,0.15);}
+
+/* Corner snap positions */
+.fw-corner-tl{top:80px;left:10px;}
+.fw-corner-tr{top:80px;right:10px;}
+.fw-corner-bl{bottom:80px;left:10px;}
+.fw-corner-br{bottom:80px;right:10px;}
+
+/* Minimise scan button */
+.minimise-scan-btn{
+  font-family:'Share Tech Mono',monospace;font-size:0.56rem;
+  padding:6px 10px;background:transparent;
+  border:1px solid #5b2d8e;color:#b39ddb;
+  cursor:pointer;transition:all 0.2s;margin-left:6px;
+}
+.minimise-scan-btn:hover{border-color:#ffd700;color:#ffd700;}
+
+/* TAP TO COPY buttons */
+.copy-btn{
+  font-family:'Share Tech Mono',monospace;font-size:0.48rem;
+  padding:2px 7px;background:rgba(255,215,0,0.08);
+  border:1px solid rgba(255,215,0,0.3);color:#ffd700;
+  cursor:pointer;transition:all 0.2s;margin-left:6px;
+  vertical-align:middle;
+}
+.copy-btn:hover{background:rgba(255,215,0,0.2);}
+.copy-btn.copied{background:rgba(0,230,118,0.15);border-color:#00e676;color:#00e676;}
+.copy-row{display:flex;align-items:center;justify-content:space-between;
+  padding:5px 8px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.copy-row:last-child{border-bottom:none;}
+.copy-label{font-family:'Share Tech Mono',monospace;font-size:0.48rem;color:#b39ddb;}
+.copy-value{font-family:'Share Tech Mono',monospace;font-size:0.68rem;
+  font-weight:bold;color:#ffffff;}
+.copy-value.sl{color:#ff4569;}
+.copy-value.tp{color:#00e676;}
+.copy-value.lot{color:#ffd700;}
+.copy-section-title{font-family:'Share Tech Mono',monospace;font-size:0.52rem;
+  color:#ffd700;letter-spacing:0.1em;padding:6px 8px;
+  background:rgba(255,215,0,0.05);border-bottom:1px solid rgba(255,215,0,0.15);}
+
 </style>
 </head>
 <body>
@@ -644,6 +727,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
     <div class="scan-sub" id="scanSub">Fetching live data · Computing confluence formula</div>
     <div class="scan-progress"><div class="scan-fill" id="scanFill"></div></div>
     <button class="cancel-scan-btn" onclick="cancelScan()">✕ STOP SCAN — BACK TO DASHBOARD</button>
+    <button class="cancel-scan-btn" style="border-color:#ffd700;color:#ffd700;margin-top:6px;" onclick="minimiseScan()">⊟ MINIMISE — KEEP SCANNING IN CORNER</button>
   </div>
 
   <div id="oppsContainer">
@@ -749,6 +833,27 @@ header{display:flex;align-items:center;justify-content:space-between;padding:12p
       <div class="rule-item"><span class="ri-num">R5</span><div class="ri-text"><span class="hi-yellow">Maximum 3 open trades at any time.</span> Never open trade 4 while 3 are still running. Patience is the skill.</div></div>
       <div class="rule-item"><span class="ri-num">R6</span><div class="ri-text"><span class="hi-red">After 3 consecutive losses — STOP for the day.</span> The market is not aligned today. Shut down. Come back tomorrow. Capital preserved = another day to trade.</div></div>
       <div class="rule-item"><span class="ri-num">R7</span><div class="ri-text"><span class="hi-green">Let winners run to FULL TP.</span> Place the trade. Walk away. Let the system work. The math only delivers if you honour the full RR ratio every time.</div></div>
+    </div>
+  </div>
+
+
+  <!-- HOW TO PLACE A TRADE ON EXNESS MT5 -->
+  <div class="rule-block">
+    <div class="rule-block-head">
+      <span class="rb-icon">📲</span>
+      <span class="rb-title">HOW TO PLACE A TRADE ON EXNESS MT5</span>
+      <span class="rb-badge green">STEP BY STEP</span>
+    </div>
+    <div class="rule-block-body">
+      <div class="rule-item"><span class="ri-num">S1</span><div class="ri-text"><strong>The bell rings on Z2B Trader.</strong> You see the signal card — pair, direction, entry, SL and TP. Tap <strong style="color:#ffd700;">📋 COPY</strong> next to the Stop Loss value first — it copies to your clipboard automatically.</div></div>
+      <div class="rule-item"><span class="ri-num">S2</span><div class="ri-text"><strong>Open Exness MT5</strong> on your phone. Tap the <strong style="color:#ffd700;">Quotes</strong> tab at the bottom. Find your pair — e.g. EURUSD. Tap it.</div></div>
+      <div class="rule-item"><span class="ri-num">S3</span><div class="ri-text"><strong>Tap the BUY or SELL button</strong> — whichever matches your signal direction. A New Order screen opens.</div></div>
+      <div class="rule-item"><span class="ri-num">S4</span><div class="ri-text"><strong>Set Volume to 0.01</strong> — tap the volume field and type 0.01. This is your micro lot. <span class="hi-red">Never change this during the proof period.</span></div></div>
+      <div class="rule-item"><span class="ri-num">S5</span><div class="ri-text"><strong>Set Stop Loss</strong> — tap the Stop Loss field. Paste the value you copied from Z2B Trader (long press → paste). Or type it manually by looking at the signal card.</div></div>
+      <div class="rule-item"><span class="ri-num">S6</span><div class="ri-text"><strong>Set Take Profit</strong> — tap the Take Profit field. Go back to Z2B Trader, tap 📋 COPY next to TP value, return to MT5 and paste it.</div></div>
+      <div class="rule-item"><span class="ri-num">S7</span><div class="ri-text"><strong>Tap PLACE ORDER</strong> — confirm the trade. MT5 will show a confirmation screen. The trade is live.</div></div>
+      <div class="rule-item"><span class="ri-num">S8</span><div class="ri-text"><strong style="color:#00e676;">WALK AWAY.</strong> Come back to Z2B Trader. Tap <strong>"I PLACED THE TRADE"</strong> to log it. Then put your phone down and go live your life. MT5 will notify you when the trade closes.</div></div>
+      <div class="rule-item"><span class="ri-num">⚠</span><div class="ri-text"><span class="hi-red"><strong>NEVER modify the SL or TP after placing.</strong></span> Never move your stop loss further away to avoid a loss. Never close early to lock a small profit. The math only works if you honour the full RR every single time. Interfering with the trade is the same as not having a system.</div></div>
     </div>
   </div>
 
@@ -1246,10 +1351,29 @@ function fireAlert(result){
     <div class="bti-row"><span class="bti-label">PAIR</span><span class="bti-val">${result.pair} · ${result.tf}</span></div>
     <div class="bti-row"><span class="bti-label">DIRECTION</span><span class="bti-val ${result.signal}">${result.signal.toUpperCase()}</span></div>
     <div class="bti-row"><span class="bti-label">ENTRY</span><span class="bti-val">${result.levels.entry}</span></div>
-    <div class="bti-row"><span class="bti-label">STOP LOSS</span><span class="bti-val sl">${result.levels.sl} (${result.levels.slPips} pips)</span></div>
-    <div class="bti-row"><span class="bti-label">TAKE PROFIT</span><span class="bti-val tp">${result.levels.tp} (${result.levels.tpPips} pips)</span></div>
-    <div class="bti-row"><span class="bti-label">RISK : REWARD</span><span class="bti-val" style="color:var(--yellow)">$${RISK.toFixed(2)} : $${result.levels.rewardDollars.toFixed(2)} (1:${result.levels.rrRatio})</span></div>
-    <div class="bti-row"><span class="bti-label">LOT SIZE</span><span class="bti-val" style="color:var(--accent)">0.01 MICRO LOT (Exness Standard)</span></div>`;
+    <div class="copy-section-title">▸ COPY TO MT5 — TAP EACH VALUE</div>
+    <div class="copy-row">
+      <span class="copy-label">STOP LOSS (${result.levels.slPips} pips)</span>
+      <span>
+        <span class="copy-value sl">${result.levels.sl}</span>
+        <button class="copy-btn" onclick="copyVal('${result.levels.sl}',this)">📋 COPY</button>
+      </span>
+    </div>
+    <div class="copy-row">
+      <span class="copy-label">TAKE PROFIT (${result.levels.tpPips} pips)</span>
+      <span>
+        <span class="copy-value tp">${result.levels.tp}</span>
+        <button class="copy-btn" onclick="copyVal('${result.levels.tp}',this)">📋 COPY</button>
+      </span>
+    </div>
+    <div class="copy-row">
+      <span class="copy-label">LOT SIZE</span>
+      <span>
+        <span class="copy-value lot">0.01</span>
+        <button class="copy-btn" onclick="copyVal('0.01',this)">📋 COPY</button>
+      </span>
+    </div>
+    <div class="bti-row"><span class="bti-label">RISK : REWARD</span><span class="bti-val" style="color:var(--yellow)">$${RISK.toFixed(2)} : $${result.levels.rewardDollars.toFixed(2)} (1:${result.levels.rrRatio})</span></div>`;
 
   // Ring bell and show overlay
   ringBell();
@@ -1718,6 +1842,28 @@ window.addEventListener('load', () => {
 updateDiscScore();
 renderTracker();
 </script>
+
+
+<!-- FLOATING SCAN WIDGET -->
+<div class="float-widget fw-corner-br" id="floatWidget">
+  <div class="fw-header" id="floatHeader">
+    <span class="fw-title">Z2B SCAN</span>
+    <div class="fw-controls">
+      <button class="fw-btn" onclick="snapCorner('tl')" title="Top Left">↖</button>
+      <button class="fw-btn" onclick="snapCorner('tr')" title="Top Right">↗</button>
+      <button class="fw-btn" onclick="snapCorner('bl')" title="Bottom Left">↙</button>
+      <button class="fw-btn" onclick="snapCorner('br')" title="Bottom Right">↘</button>
+      <button class="fw-btn" onclick="hideFloat()" title="Close">✕</button>
+    </div>
+  </div>
+  <div class="fw-body">
+    <div class="fw-status idle" id="fwStatus">WATCHING...</div>
+    <div class="fw-signal idle" id="fwSignal">NO SIGNAL</div>
+    <div class="fw-pair" id="fwPair">—</div>
+    <div class="fw-next" id="fwNext">Next scan: —</div>
+  </div>
+  <button class="fw-expand" onclick="expandFloat()">↑ OPEN FULL VIEW</button>
+</div>
 
 <!-- PWA INSTALL BANNER -->
 <div class="pwa-banner" id="pwaBanner">
@@ -2216,6 +2362,184 @@ window.addEventListener('load', () => {
     setInterval(fetchNewsCalendar, 3600000);
   }, 1500);
 });
+
+
+// ═══════════════════════════════════════════════
+// FLOATING SCAN WIDGET
+// ═══════════════════════════════════════════════
+let floatVisible = false;
+let isDragging = false;
+let dragOffX = 0, dragOffY = 0;
+let nextScanTime = null;
+
+function showFloat() {
+  const w = document.getElementById('floatWidget');
+  if(w){ w.classList.add('show'); floatVisible = true; }
+}
+
+function hideFloat() {
+  const w = document.getElementById('floatWidget');
+  if(w){ w.classList.remove('show'); floatVisible = false; }
+}
+
+function expandFloat() {
+  hideFloat();
+  showTab('scanner');
+  // Find and click scanner tab
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if(b.textContent.includes('SCANNER')) b.click();
+  });
+}
+
+function minimiseScan() {
+  // Hide scan overlay, show float widget
+  document.getElementById('scanOverlay').classList.remove('active');
+  document.getElementById('scanBtn').disabled = false;
+  showFloat();
+  updateFloatStatus('scanning', 'SCANNING...', '—', 'Running in background');
+}
+
+function snapCorner(corner) {
+  const w = document.getElementById('floatWidget');
+  if(!w) return;
+  // Remove all corner classes
+  w.classList.remove('fw-corner-tl','fw-corner-tr','fw-corner-bl','fw-corner-br');
+  // Remove inline positioning from drag
+  w.style.left = ''; w.style.right = ''; w.style.top = ''; w.style.bottom = '';
+  w.classList.add('fw-corner-' + corner);
+}
+
+function updateFloatStatus(statusClass, statusText, signalText, nextText, signalClass) {
+  const s = document.getElementById('fwStatus');
+  const sig = document.getElementById('fwSignal');
+  const next = document.getElementById('fwNext');
+  if(s){ s.className = 'fw-status ' + statusClass; s.textContent = statusText; }
+  if(sig){ sig.className = 'fw-signal ' + (signalClass||'idle'); sig.textContent = signalText; }
+  if(next){ next.textContent = nextText; }
+}
+
+// Drag functionality
+const fw = document.getElementById('floatWidget');
+const fwHeader = document.getElementById('floatHeader');
+if(fw && fwHeader) {
+  fwHeader.addEventListener('mousedown', startDrag);
+  fwHeader.addEventListener('touchstart', startDragTouch, {passive:true});
+}
+
+function startDrag(e) {
+  isDragging = true;
+  const fw = document.getElementById('floatWidget');
+  const rect = fw.getBoundingClientRect();
+  dragOffX = e.clientX - rect.left;
+  dragOffY = e.clientY - rect.top;
+  fw.classList.add('dragging');
+  // Remove corner classes when dragging
+  fw.classList.remove('fw-corner-tl','fw-corner-tr','fw-corner-bl','fw-corner-br');
+  document.addEventListener('mousemove', doDrag);
+  document.addEventListener('mouseup', stopDrag);
+}
+
+function startDragTouch(e) {
+  const touch = e.touches[0];
+  isDragging = true;
+  const fw = document.getElementById('floatWidget');
+  const rect = fw.getBoundingClientRect();
+  dragOffX = touch.clientX - rect.left;
+  dragOffY = touch.clientY - rect.top;
+  fw.classList.add('dragging');
+  fw.classList.remove('fw-corner-tl','fw-corner-tr','fw-corner-bl','fw-corner-br');
+  document.addEventListener('touchmove', doDragTouch, {passive:false});
+  document.addEventListener('touchend', stopDrag);
+}
+
+function doDrag(e) {
+  if(!isDragging) return;
+  const fw = document.getElementById('floatWidget');
+  let x = e.clientX - dragOffX;
+  let y = e.clientY - dragOffY;
+  // Keep within screen
+  x = Math.max(0, Math.min(window.innerWidth - fw.offsetWidth, x));
+  y = Math.max(0, Math.min(window.innerHeight - fw.offsetHeight, y));
+  fw.style.left = x + 'px';
+  fw.style.top  = y + 'px';
+  fw.style.right = 'auto';
+  fw.style.bottom = 'auto';
+}
+
+function doDragTouch(e) {
+  e.preventDefault();
+  const touch = e.touches[0];
+  const fw = document.getElementById('floatWidget');
+  let x = touch.clientX - dragOffX;
+  let y = touch.clientY - dragOffY;
+  x = Math.max(0, Math.min(window.innerWidth - fw.offsetWidth, x));
+  y = Math.max(0, Math.min(window.innerHeight - fw.offsetHeight, y));
+  fw.style.left = x + 'px';
+  fw.style.top  = y + 'px';
+  fw.style.right = 'auto';
+  fw.style.bottom = 'auto';
+}
+
+function stopDrag() {
+  isDragging = false;
+  const fw = document.getElementById('floatWidget');
+  if(fw) fw.classList.remove('dragging');
+  document.removeEventListener('mousemove', doDrag);
+  document.removeEventListener('mouseup', stopDrag);
+  document.removeEventListener('touchmove', doDragTouch);
+  document.removeEventListener('touchend', stopDrag);
+}
+
+// Update float widget when signal fires
+const _origFireAlert = fireAlert;
+fireAlert = function(result) {
+  // Update float widget
+  const sig = result.signal === 'buy' ? 'BUY' : result.signal === 'sell' ? 'SELL' : 'WATCH';
+  const sigClass = result.signal === 'buy' ? 'buy' : result.signal === 'sell' ? 'sell' : 'watch';
+  updateFloatStatus('signal', '🔔 SIGNAL!', sig + ' ' + result.pair, result.tf + ' · 1:' + result.levels.rrRatio, sigClass);
+  // Call original
+  _origFireAlert(result);
+};
+
+// Update float next scan countdown
+setInterval(() => {
+  if(!floatVisible) return;
+  if(nextScanTime) {
+    const diff = nextScanTime - new Date();
+    if(diff > 0) {
+      const mins = Math.floor(diff/60000);
+      const secs = Math.floor((diff%60000)/1000);
+      document.getElementById('fwNext').textContent = 
+        'Next: ' + String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0');
+    }
+  }
+}, 1000);
+
+// ═══════════════════════════════════════════════
+// TAP TO COPY
+// ═══════════════════════════════════════════════
+function copyVal(val, btn) {
+  navigator.clipboard.writeText(val).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✔ COPIED';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.classList.remove('copied');
+    }, 2000);
+  }).catch(() => {
+    // Fallback for older browsers
+    const ta = document.createElement('textarea');
+    ta.value = val;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✔ COPIED';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 COPY'; btn.classList.remove('copied'); }, 2000);
+  });
+}
 
 </script>
 
